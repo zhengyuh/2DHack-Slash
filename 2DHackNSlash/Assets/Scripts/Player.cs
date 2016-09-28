@@ -2,14 +2,15 @@
 using System.Collections;
 
 public class Player : MonoBehaviour {
-    public float speed = 5f;
+    public float movement_speed = 5f; //Need to be private once done testing
+    private float animSpeed;
     Rigidbody2D rb;
     Animator anim;
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -22,10 +23,14 @@ public class Player : MonoBehaviour {
             anim.SetBool("IsWalking", true);
             anim.SetFloat("Input_X", moveVector.x);
             anim.SetFloat("Input_Y", moveVector.y);
-            anim.speed = speed / 5;
+            anim.speed = GetPlayerAnimSpeed();
         } else {
             anim.SetBool("IsWalking", false);
         }
-        rb.MovePosition(rb.position + moveVector * speed * Time.deltaTime);
+        rb.MovePosition(rb.position + moveVector * movement_speed * Time.deltaTime);
+    }
+
+    public float GetPlayerAnimSpeed() {
+        return movement_speed / 5;
     }
 }
