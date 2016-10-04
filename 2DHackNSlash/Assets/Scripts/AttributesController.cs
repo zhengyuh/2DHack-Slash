@@ -2,8 +2,6 @@
 using System.Collections;
 
 class AttributesController : MonoBehaviour {
-    public string GearType;
-
     public float AddHealth;
     public float AddMana;
     public float AddAD;

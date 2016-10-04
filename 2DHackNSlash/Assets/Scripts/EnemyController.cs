@@ -5,6 +5,9 @@ using UnityEngine.UI;
 public class EnemyController : MonoBehaviour {
     public GameObject EnemyPrefab;
 
+    public string Name;
+    public int lvl;
+
     public float MaxHealth;
     public float MaxMana;
     public float MaxAD;
@@ -24,8 +27,6 @@ public class EnemyController : MonoBehaviour {
     public float CritChance = 0.3f; //Percantage
     public float CritDmgBounus = 1f; //Percantage
 
-
-    private Transform HealthMask;
     // Use this for initialization
     void Start () {
         InstantiateEnemyPrefab();
@@ -37,16 +38,40 @@ public class EnemyController : MonoBehaviour {
         CurrAP = MaxAP;
         CurrAttSpd = MaxAttkSpd;
         CurrMoveSpd = MaxMoveSpd;
-
-        HealthMask = transform.Find("Indication Board").Find("Health Bar").Find("Mask");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        UpdateHealthBar();
         DieUpdate();
     }
 
+    //----------public
+
+    public string GetName() {
+        return Name;
+    }
+
+    public float GetCurrentHealth() {
+        return CurrHealth;
+    }
+
+    public float GetMaxHealth() {
+        return MaxHealth;
+    }
+
+    public void DeductHealth(float dmg) {//Method for collider
+        CurrHealth -= dmg;//Update CurrentHealth
+    }
+
+
+
+
+
+
+
+
+
+    //-------private
     void InstantiateEnemyPrefab() {
         this.EnemyPrefab = Instantiate(EnemyPrefab, transform) as GameObject;
     }
@@ -55,17 +80,9 @@ public class EnemyController : MonoBehaviour {
         if (EnemyPrefab != null && EnemyPrefab.GetComponent<SpawnOffSetController>() != null)
             EnemyPrefab.transform.position = transform.position += EnemyPrefab.GetComponent<SpawnOffSetController>().SpawnOffSet;
     }
-
-    public void DeductHealth(float dmg) {//Method for collider
-        CurrHealth -= dmg;//Update CurrentHealth
-    }
-
-    void UpdateHealthBar() {
-        HealthMask.transform.localScale = new Vector2(CurrHealth / MaxHealth, HealthMask.transform.localScale.y);//Moving mask
-    }
-
-   void DieUpdate() {
+    void DieUpdate() {
         if (CurrHealth <= 0) //Insert dead animation here
             Destroy(gameObject);
     }
+
 }
