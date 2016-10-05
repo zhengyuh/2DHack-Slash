@@ -30,7 +30,6 @@ public class EnemyController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         InstantiateEnemyPrefab();
-        InstantiatePosition();
 
         CurrHealth = MaxHealth;
         CurrMana = MaxMana;
@@ -73,13 +72,12 @@ public class EnemyController : MonoBehaviour {
 
     //-------private
     void InstantiateEnemyPrefab() {
-        this.EnemyPrefab = Instantiate(EnemyPrefab, transform) as GameObject;
+        if (EnemyPrefab != null) {
+            EnemyPrefab = Instantiate(EnemyPrefab, transform) as GameObject;
+            EnemyPrefab.transform.position = transform.position + EnemyPrefab.transform.position;
+        }
     }
 
-    void InstantiatePosition() {
-        if (EnemyPrefab != null && EnemyPrefab.GetComponent<SpawnOffSetController>() != null)
-            EnemyPrefab.transform.position = transform.position += EnemyPrefab.GetComponent<SpawnOffSetController>().SpawnOffSet;
-    }
     void DieUpdate() {
         if (CurrHealth <= 0) //Insert dead animation here
             Destroy(gameObject);

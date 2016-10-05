@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour {
+    private ControllerManager CM;
     public string Name;
     public string Class;
     public int lvl;
@@ -41,6 +42,9 @@ public class PlayerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        //QualitySettings.vSyncCount = 0;
+        //Application.targetFrameRate = 30;
+        CM = FindObjectOfType<ControllerManager>();
         InitPlayer();
     }
 	
@@ -104,95 +108,56 @@ public class PlayerController : MonoBehaviour {
 
     void BaseModelUodate() {
         Animator BaseModelAnim = BaseModel.GetComponent<Animator>();
-        Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        if (moveVector != Vector2.zero) {
-            BaseModelAnim.SetFloat("Move_X", moveVector.x);
-            BaseModelAnim.SetFloat("Move_Y", moveVector.y);
-            BaseModelAnim.speed = GetPlayerMovementAnimSpeed();
-        }
+        BaseModelAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
     }
 
     void HelmetUpdate() {
         if (Helmet != null) {
             Animator HelmetAnim = Helmet.GetComponent<Animator>();
-            Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (moveVector != Vector2.zero) {
-                HelmetAnim.SetFloat("Move_X", moveVector.x);
-                HelmetAnim.SetFloat("Move_Y", moveVector.y);
-                HelmetAnim.speed = GetPlayerMovementAnimSpeed();
-            }
+            HelmetAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
         }
     }
 
     void ChestUpdate() {
         if (Chest != null) {
             Animator ChestAnim = Chest.GetComponent<Animator>();
-            Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (moveVector != Vector2.zero) {
-                ChestAnim.SetFloat("Move_X", moveVector.x);
-                ChestAnim.SetFloat("Move_Y", moveVector.y);
-                ChestAnim.speed = GetPlayerMovementAnimSpeed();
-            }
+            ChestAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
         }
     }
 
     void ShackleUpdate() {
         if (Shackle != null) {
             Animator ShackleAnim = Shackle.GetComponent<Animator>();
-            Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (moveVector != Vector2.zero) {
-                ShackleAnim.SetFloat("Move_X", moveVector.x);
-                ShackleAnim.SetFloat("Move_Y", moveVector.y);
-                ShackleAnim.speed =GetPlayerMovementAnimSpeed();
-            }
+            ShackleAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
         }
     }
 
     void WeaponUpdate() {
         if (Weapon != null) {
             Animator WeaponAnim = Weapon.GetComponent<Animator>();
-            Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (moveVector != Vector2.zero) {
-                WeaponAnim.SetFloat("Move_X", moveVector.x);
-                WeaponAnim.SetFloat("Move_Y", moveVector.y);
-                WeaponAnim.speed = GetPlayerMovementAnimSpeed();
-            }
+            WeaponAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
         }
     }
 
     void TrinketUpdate() {
         if (Trinket != null) {
             Animator TrinketAnim = Trinket.GetComponent<Animator>();
-            Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (moveVector != Vector2.zero) {
-                TrinketAnim.SetFloat("Move_X", moveVector.x);
-                TrinketAnim.SetFloat("Move_Y", moveVector.y);
-                TrinketAnim.speed = GetPlayerMovementAnimSpeed();
-            }
+            TrinketAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
         }
     }
 
     void MoveUpdate() {
-        Vector2 moveVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        if (moveVector != Vector2.zero) {
-            //Following if statements disable anaglog sensitivity movement 
-            if (moveVector.x > 0)
-                moveVector = new Vector2(1, moveVector.y);
-            if (moveVector.x < 0)
-                moveVector = new Vector2(-1, moveVector.y);
-            if (moveVector.y > 0)
-                moveVector = new Vector2(moveVector.x, 1);
-            if (moveVector.y < 0)
-                moveVector = new Vector2(moveVector.x, -1);
-            rb.MovePosition(rb.position + moveVector * CurrMoveSpd * Time.deltaTime);
+        if (CM.GetMoveVector() != Vector2.zero) {
+            rb.MovePosition(rb.position + CM.GetMoveVector() * CurrMoveSpd * Time.deltaTime);
         }
     }
 
 
 
     //-------helper
+
     void InstaniateEquipment() {
-                if(Class == "Warrior") {
+        if(Class == "Warrior") {
             BaseModel = Instantiate(Resources.Load("Red Ghost/Ghost/Red Ghost"), transform) as GameObject;
             BaseModel.transform.position = transform.position + BaseModel.transform.position;
         }
