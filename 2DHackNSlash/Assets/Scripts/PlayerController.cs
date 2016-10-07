@@ -108,41 +108,58 @@ public class PlayerController : MonoBehaviour {
 
     void BaseModelUodate() {
         Animator BaseModelAnim = BaseModel.GetComponent<Animator>();
-        BaseModelAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
+        BaseModelAnim.SetInteger("Direction", CM.GetDirection());
+        BaseModelAnim.speed = GetPlayerMovementAnimSpeed();
     }
 
     void HelmetUpdate() {
         if (Helmet != null) {
             Animator HelmetAnim = Helmet.GetComponent<Animator>();
-            HelmetAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
+            HelmetAnim.SetInteger("Direction", CM.GetDirection());
+            HelmetAnim.speed = GetPlayerMovementAnimSpeed();
         }
     }
 
     void ChestUpdate() {
         if (Chest != null) {
             Animator ChestAnim = Chest.GetComponent<Animator>();
-            ChestAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
+            ChestAnim.SetInteger("Direction", CM.GetDirection());
+            ChestAnim.speed = GetPlayerMovementAnimSpeed();
         }
     }
 
     void ShackleUpdate() {
         if (Shackle != null) {
             Animator ShackleAnim = Shackle.GetComponent<Animator>();
-            ShackleAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
-        }
-    }
-
-    void WeaponUpdate() {
-        if (Weapon != null) {
-            Animator WeaponAnim = Weapon.GetComponent<Animator>();
-            WeaponAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
+            ShackleAnim.SetInteger("Direction", CM.GetDirection());
+            ShackleAnim.speed = GetPlayerMovementAnimSpeed();
         }
     }
 
     void TrinketUpdate() {
         if (Trinket != null) {
             Animator TrinketAnim = Trinket.GetComponent<Animator>();
-            TrinketAnim.SetInteger("LatestMoveInput", CM.GetLatestMoveInput());
+            TrinketAnim.SetInteger("Direction", CM.GetDirection());
+            TrinketAnim.speed = GetPlayerMovementAnimSpeed();
+        }
+    }
+
+    void WeaponUpdate() {
+        if (Weapon != null) {
+            Animator WeaponAnim = Weapon.GetComponent<Animator>();
+            WeaponAnim.SetInteger("Direction", CM.GetDirection());
+            WeaponAnim.speed = GetPlayerMovementAnimSpeed();
+            if (CM.GetDirection()==3)
+                Weapon.GetComponent<SpriteRenderer>().sortingOrder = 0;
+            else
+                Weapon.GetComponent<SpriteRenderer>().sortingOrder = 1;
+            if (CM.GetAttackVector() != Vector2.zero) {//Attack Update
+                WeaponAnim.SetBool("IsAttacking", true);
+                WeaponAnim.SetInteger("Direction", CM.GetDirection());
+                WeaponAnim.speed = GetPlayerAttackAnimSpeed();
+            } else {
+                WeaponAnim.SetBool("IsAttacking", false);
+            }
         }
     }
 
@@ -151,8 +168,6 @@ public class PlayerController : MonoBehaviour {
             rb.MovePosition(rb.position + CM.GetMoveVector() * CurrMoveSpd * Time.deltaTime);
         }
     }
-
-
 
     //-------helper
 
@@ -169,7 +184,7 @@ public class PlayerController : MonoBehaviour {
             Shackle = null;
         else if (Weapon != null && Weapon.tag != "Weapon")
             Weapon = null;
-        else if (Trinket != null && Trinket.tag != "Trinke")
+        else if (Trinket != null && Trinket.tag != "Trinket")
             Trinket = null;
         else {
             if (Helmet != null && Helmet.tag == "Helmet") {
@@ -180,7 +195,7 @@ public class PlayerController : MonoBehaviour {
                 Chest = Instantiate(Chest, transform) as GameObject;
                 Chest.transform.position = transform.position + Chest.transform.position;
             }
-            if (Shackle != null && Shackle.tag == "Shakle") {
+            if (Shackle != null && Shackle.tag == "Shackle") {
                 Shackle = Instantiate(Shackle, transform) as GameObject;
                 Shackle.transform.position = transform.position + Shackle.transform.position;
             }

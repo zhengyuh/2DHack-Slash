@@ -3,8 +3,6 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour {
-    public GameObject EnemyPrefab;
-
     public string Name;
     public int lvl;
 
@@ -29,8 +27,6 @@ public class EnemyController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        InstantiateEnemyPrefab();
-
         CurrHealth = MaxHealth;
         CurrMana = MaxMana;
         CurrAD = MaxAD;
@@ -71,12 +67,6 @@ public class EnemyController : MonoBehaviour {
 
 
     //-------private
-    void InstantiateEnemyPrefab() {
-        if (EnemyPrefab != null) {
-            EnemyPrefab = Instantiate(EnemyPrefab, transform) as GameObject;
-            EnemyPrefab.transform.position = transform.position + EnemyPrefab.transform.position;
-        }
-    }
 
     void DieUpdate() {
         if (CurrHealth <= 0) //Insert dead animation here
