@@ -164,16 +164,16 @@ public class ControllerManager : MonoBehaviour {
 
     void UpdateDirection() {
         //Keydown Update
-        if (Input.GetKeyDown(MoveLeft)) {
+        if (Input.GetKeyDown(MoveLeft) && AttackVector == Vector2.zero) {
             Direction = 1;
         }
-        if (Input.GetKeyDown(MoveRight)) {
+        if (Input.GetKeyDown(MoveRight) && AttackVector == Vector2.zero) {
             Direction = 2;
         }
-        if (Input.GetKeyDown(MoveUp)) {
+        if (Input.GetKeyDown(MoveUp) && AttackVector == Vector2.zero) {
             Direction = 3;
         }
-        if (Input.GetKeyDown(MoveDown)) {
+        if (Input.GetKeyDown(MoveDown) && AttackVector == Vector2.zero) {
             Direction = 0;
         }
         //Keyup Update

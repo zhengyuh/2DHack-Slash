@@ -136,12 +136,13 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    void TrinketUpdate() {
-        if (Trinket != null) {
-            Animator TrinketAnim = Trinket.GetComponent<Animator>();
-            TrinketAnim.SetInteger("Direction", CM.GetDirection());
-            TrinketAnim.speed = GetPlayerMovementAnimSpeed();
-        }
+    void TrinketUpdate() {//Disable for non-wing trinkets
+        //if (Trinket != null) {
+        //    Animator TrinketAnim = Trinket.GetComponent<Animator>();
+        //    print(TrinketAnim.GetInteger("Direction"));
+        //    TrinketAnim.SetInteger("Direction", CM.GetDirection());
+        //    TrinketAnim.speed = GetPlayerMovementAnimSpeed();
+        //}
     }
 
     void WeaponUpdate() {
