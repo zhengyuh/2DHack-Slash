@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour {
     public float MaxAP;
     public float MaxAttkSpd = 1f;
     public float MaxMoveSpd = 1f;
-    public float MaxDmgDeduction;
+    public float MaxDefense;
 
     private float CurrHealth;
     private float CurrMana;
@@ -33,23 +33,23 @@ public class PlayerController : MonoBehaviour {
     private float CurrAP;
     private float CurrAttSpd;
     private float CurrMoveSpd;
-    private float CurrDmgDeduction;
+    private float CurrDefense;
 
     public float CritChance = 0.3f;
     public float CritDmgBounus = 1f;
 
     Rigidbody2D rb;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         //QualitySettings.vSyncCount = 0;
         //Application.targetFrameRate = 30;
         CM = FindObjectOfType<ControllerManager>();
         InitPlayer();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
         BaseModelUodate();
         HelmetUpdate();
         ChestUpdate();
@@ -63,6 +63,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     //----------public
+    public float GetPlayerAttackCD() {
+        return attack_animation_interval/CurrAttSpd * 0.5f;
+    }
 
     public float GetPlayerMovementAnimSpeed() {
         return CurrMoveSpd / (movement_animation_interval);
@@ -85,10 +88,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     public float AutoAttackDamageDeal() {//Subject to change for classes scale with AP
-        if(Random.value<CritChance){
+        if (Random.value < CritChance) {
             return CurrAD + CurrAD * CritDmgBounus;
-        }
-        else {
+        } else {
             return CurrAD;
         }
     }
@@ -150,7 +152,7 @@ public class PlayerController : MonoBehaviour {
             Animator WeaponAnim = Weapon.GetComponent<Animator>();
             WeaponAnim.SetInteger("Direction", CM.GetDirection());
             WeaponAnim.speed = GetPlayerMovementAnimSpeed();
-            if (CM.GetDirection()==3)
+            if (CM.GetDirection() == 3)
                 Weapon.GetComponent<SpriteRenderer>().sortingOrder = 0;
             else
                 Weapon.GetComponent<SpriteRenderer>().sortingOrder = 1;
@@ -173,41 +175,65 @@ public class PlayerController : MonoBehaviour {
     //-------helper
 
     void InstaniateEquipment() {
-        if(Class == "Warrior") {
+        if (Class == "Warrior") {
             BaseModel = Instantiate(Resources.Load("Red Ghost/Ghost/Red Ghost"), transform) as GameObject;
             BaseModel.transform.position = transform.position + BaseModel.transform.position;
         }
-        if (Helmet != null && Helmet.tag != "Helmet")
-            Helmet = null;
-        else if (Chest != null && Chest.tag != "Chest")
-            Chest = null;
-        else if (Shackle != null && Shackle.tag != "Shackle")
-            Shackle = null;
-        else if (Weapon != null && Weapon.tag != "Weapon")
-            Weapon = null;
-        else if (Trinket != null && Trinket.tag != "Trinket")
-            Trinket = null;
-        else {
-            if (Helmet != null && Helmet.tag == "Helmet") {
-                Helmet = Instantiate(Helmet, transform) as GameObject;
-                Helmet.transform.position = transform.position + Helmet.transform.position;
-            }
-            if (Chest != null && Chest.tag == "Chest") {
-                Chest = Instantiate(Chest, transform) as GameObject;
-                Chest.transform.position = transform.position + Chest.transform.position;
-            }
-            if (Shackle != null && Shackle.tag == "Shackle") {
-                Shackle = Instantiate(Shackle, transform) as GameObject;
-                Shackle.transform.position = transform.position + Shackle.transform.position;
-            }
-            if (Weapon != null && Weapon.tag == "Weapon") {
-                Weapon = Instantiate(Weapon, transform) as GameObject;
-                Weapon.transform.position = transform.position + Weapon.transform.position;
-            }
-            if (Trinket != null && Trinket.tag == "Trinket") {
-                Trinket = Instantiate(Trinket, transform) as GameObject;
-                Trinket.transform.position = transform.position + Trinket.transform.position;
-            }
+        else if(Class == "Mage") {
+
         }
+        else if(Class == "Rogue") {
+
+        }
+        InstantiateHelmet();
+        InstantiateChest();
+        InstantiateShackle();
+        InstantiateWeapon();
+        InstantiateTrinket();
+    }
+
+    void InstantiateHelmet() {
+        if (Helmet != null && (Helmet.tag != "Helmet" || Helmet.GetComponent<AttributesController>().Class != Class)) {
+            Helmet = null;
+            return;
+        }
+        Helmet = Instantiate(Helmet, transform) as GameObject;
+        Helmet.transform.position = transform.position + Helmet.transform.position;
+    }
+
+    void InstantiateChest() {
+        if (Chest != null && (Chest.tag != "Chest" || Chest.GetComponent<AttributesController>().Class != Class)) {
+            Chest = null;
+            return;
+        }
+        Chest = Instantiate(Chest, transform) as GameObject;
+        Chest.transform.position = transform.position + Chest.transform.position;
+    }
+
+    void InstantiateShackle() {
+        if (Shackle != null && (Shackle.tag != "Shackle" || Shackle.GetComponent<AttributesController>().Class != Class)) {
+            Shackle = null;
+            return;
+        }
+        Shackle = Instantiate(Shackle, transform) as GameObject;
+        Shackle.transform.position = transform.position + Shackle.transform.position;
+    }
+
+    void InstantiateWeapon() {
+        if (Weapon != null && (Weapon.tag != "Weapon" || Weapon.GetComponent<AttributesController>().Class != Class)) {
+            Weapon = null;
+            return;
+        }
+        Weapon = Instantiate(Weapon, transform) as GameObject;
+        Weapon.transform.position = transform.position + Weapon.transform.position;
+    }
+
+    void InstantiateTrinket() {
+        if (Trinket != null && Trinket.tag != "Trinket"){
+            Trinket = null;
+            return;
+        }
+        Trinket = Instantiate(Trinket, transform) as GameObject;
+        Trinket.transform.position = transform.position + Trinket.transform.position;
     }
 }

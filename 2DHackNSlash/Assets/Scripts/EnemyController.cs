@@ -12,7 +12,7 @@ public class EnemyController : MonoBehaviour {
     public float MaxAP;
     public float MaxAttkSpd;
     public float MaxMoveSpd;
-    public float MaxDmgDeduction;
+    public float MaxDefense;
 
     private float CurrHealth;
     private float CurrMana;
@@ -20,7 +20,7 @@ public class EnemyController : MonoBehaviour {
     private float CurrAP;
     private float CurrAttSpd;
     private float CurrMoveSpd;
-    private float CurrDmgDeduction;
+    private float CurrDefense;
 
     public float CritChance = 0.3f; //Percantage
     public float CritDmgBounus = 1f; //Percantage

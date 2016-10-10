@@ -16,9 +16,6 @@ public class ControllerManager : MonoBehaviour {
     Vector2 MoveVector;
     Vector2 AttackVector;
 
-    int LatestMoveInput; // Animation direction is controlled by it: 0->down, 1->left, 2->right, 3->up
-    int LatestAttackInput;
-
     int Direction;
 
 	// Use this for initialization
@@ -78,14 +75,14 @@ public class ControllerManager : MonoBehaviour {
         if (Input.GetKey(MoveUp) && Input.GetKey(MoveRight)) {
             MoveVector = new Vector2(1, 1);
         }
-
-        //Stop player movement on key release
         if (Input.GetKey(MoveDown) && Input.GetKey(MoveLeft)) {
             MoveVector = new Vector2(-1, -1);
         }
         if (Input.GetKey(MoveDown) && Input.GetKey(MoveRight)) {
             MoveVector = new Vector2(1, -1);
         }
+
+        //Stop player movement on corresponding axis on key release
         if (!Input.GetKey(MoveLeft) && !Input.GetKey(MoveRight)) {
             MoveVector = new Vector2(0, MoveVector.y);
         }
@@ -136,14 +133,14 @@ public class ControllerManager : MonoBehaviour {
         if (Input.GetKey(AttackUp) && Input.GetKey(AttackRight)) {
             AttackVector = new Vector2(1, 1);
         }
-
-        //Stop player movement on key release
         if (Input.GetKey(AttackDown) && Input.GetKey(AttackLeft)) {
             AttackVector = new Vector2(-1, -1);
         }
         if (Input.GetKey(AttackDown) && Input.GetKey(AttackRight)) {
             AttackVector = new Vector2(1, -1);
         }
+
+        //Stop player attack on corresponding axis on key release
         if (!Input.GetKey(AttackLeft) && !Input.GetKey(AttackRight)) {
             AttackVector = new Vector2(0, AttackVector.y);
         }
@@ -151,7 +148,7 @@ public class ControllerManager : MonoBehaviour {
             AttackVector = new Vector2(AttackVector.x, 0);
         }
 
-        //Stop player movement on move direction conflict
+        //Stop player attack on attack direction conflict
         if (Input.GetKey(AttackLeft) && Input.GetKey(AttackRight))
             AttackVector = new Vector2(0, AttackVector.y);
         if (Input.GetKey(AttackUp) && Input.GetKey(AttackDown))
@@ -177,20 +174,20 @@ public class ControllerManager : MonoBehaviour {
             Direction = 0;
         }
         //Keyup Update
-        if (Input.GetKeyUp(MoveLeft) || Input.GetKeyUp(MoveRight)) {
-            if (MoveVector.y > 0)
+        if ((Input.GetKeyUp(MoveLeft) || Input.GetKeyUp(MoveRight)) && AttackVector == Vector2.zero) {
+            if (MoveVector.y > 0) {
                 Direction = 3;
-            else if (MoveVector.y < 0)
+            } else if (MoveVector.y < 0) {
                 Direction = 0;
+            }
         }
-        if (Input.GetKeyUp(MoveUp) || Input.GetKeyUp(MoveDown)) {
-            if (MoveVector.x > 0)
+        if ((Input.GetKeyUp(MoveUp) || Input.GetKeyUp(MoveDown)) && AttackVector == Vector2.zero) {
+            if (MoveVector.x > 0) {
                 Direction = 2;
-            else if (MoveVector.x < 0)
+            } else if (MoveVector.x < 0) {
                 Direction = 1;
+            }
         }
-
-
 
         //Keydown Update
         if (Input.GetKeyDown(AttackLeft)) {
@@ -207,19 +204,64 @@ public class ControllerManager : MonoBehaviour {
         }
         //Keyup Update
         if (Input.GetKeyUp(AttackLeft) || Input.GetKeyUp(AttackRight)) {
-            if (AttackVector.y > 0)
+            if (AttackVector.y > 0) {
                 Direction = 3;
-            else if (AttackVector.y < 0)
+            } else if (AttackVector.y < 0) {
                 Direction = 0;
+            }
         }
         if (Input.GetKeyUp(AttackUp) || Input.GetKeyUp(AttackDown)) {
-            if (AttackVector.x > 0)
+            if (AttackVector.x > 0) {
                 Direction = 2;
-            else if (AttackVector.x < 0)
+            } else if (AttackVector.x < 0) {
                 Direction = 1;
+            }
         }
+
         //Get back to move direction
-        if (!Input.GetKey(AttackLeft) && !Input.GetKey(AttackRight) && !Input.GetKey(AttackUp) && !Input.GetKey(AttackDown)) {
+        if (Input.GetKeyUp(AttackLeft) && (AttackVector == Vector2.zero)) {
+            if (Input.GetKey(MoveLeft)) {
+                Direction = 1;
+            }
+            if (Input.GetKey(MoveRight)) {
+                Direction = 2;
+            }
+            if (Input.GetKey(MoveUp)) {
+                Direction = 3;
+            }
+            if (Input.GetKey(MoveDown)) {
+                Direction = 0;
+            }
+        }
+        if (Input.GetKeyUp(AttackRight) && (AttackVector == Vector2.zero)) {
+            if (Input.GetKey(MoveLeft)) {
+                Direction = 1;
+            }
+            if (Input.GetKey(MoveRight)) {
+                Direction = 2;
+            }
+            if (Input.GetKey(MoveUp)) {
+                Direction = 3;
+            }
+            if (Input.GetKey(MoveDown)) {
+                Direction = 0;
+            }
+        }
+        if (Input.GetKeyUp(AttackUp) && (AttackVector == Vector2.zero)) {
+            if (Input.GetKey(MoveLeft)) {
+                Direction = 1;
+            }
+            if (Input.GetKey(MoveRight)) {
+                Direction = 2;
+            }
+            if (Input.GetKey(MoveUp)) {
+                Direction = 3;
+            }
+            if (Input.GetKey(MoveDown)) {
+                Direction = 0;
+            }
+        }
+        if (Input.GetKeyUp(AttackDown) && (AttackVector == Vector2.zero)) {
             if (Input.GetKey(MoveLeft)) {
                 Direction = 1;
             }
