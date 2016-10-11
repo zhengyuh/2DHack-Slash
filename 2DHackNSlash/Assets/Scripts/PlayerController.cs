@@ -37,15 +37,14 @@ public class PlayerController : MonoBehaviour {
 
     public float CritChance = 0.3f;
     public float CritDmgBounus = 1f;
-
     Rigidbody2D rb;
-
     // Use this for initialization
     void Start() {
         //QualitySettings.vSyncCount = 0;
         //Application.targetFrameRate = 30;
         CM = FindObjectOfType<ControllerManager>();
         InitPlayer();
+
     }
 
     // Update is called once per frame
@@ -87,12 +86,18 @@ public class PlayerController : MonoBehaviour {
         return MaxHealth;
     }
 
-    public float AutoAttackDamageDeal() {//Subject to change for classes scale with AP
+    public DMG AutoAttackDamageDeal() {//Subject to change for classes scale with AP
+        DMG dmg;
         if (Random.value < CritChance) {
-            return CurrAD + CurrAD * CritDmgBounus;
-        } else {
-            return CurrAD;
+            //dmg.Damage = CurrAD + CurrAD * CritDmgBounus;
+            dmg.Damage = CurrAD + CurrAD * CritDmgBounus;
+            dmg.IsCrit = true;
         }
+        else {
+            dmg.Damage = CurrAD;
+            dmg.IsCrit = false;
+        }
+        return dmg;
     }
 
     //-------private
@@ -151,11 +156,12 @@ public class PlayerController : MonoBehaviour {
         if (Weapon != null) {
             Animator WeaponAnim = Weapon.GetComponent<Animator>();
             WeaponAnim.SetInteger("Direction", CM.GetDirection());
-            WeaponAnim.speed = GetPlayerMovementAnimSpeed();
+            //WeaponAnim.speed = GetPlayerMovementAnimSpeed();
+            WeaponAnim.speed = GetPlayerAttackAnimSpeed();
             if (CM.GetDirection() == 3)
                 Weapon.GetComponent<SpriteRenderer>().sortingOrder = 0;
             else
-                Weapon.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                Weapon.GetComponent<SpriteRenderer>().sortingOrder = 2;
             if (CM.GetAttackVector() != Vector2.zero) {//Attack Update
                 WeaponAnim.SetBool("IsAttacking", true);
                 WeaponAnim.SetInteger("Direction", CM.GetDirection());
@@ -193,47 +199,54 @@ public class PlayerController : MonoBehaviour {
     }
 
     void InstantiateHelmet() {
-        if (Helmet != null && (Helmet.tag != "Helmet" || Helmet.GetComponent<AttributesController>().Class != Class)) {
+        if ((Helmet != null && (Helmet.tag != "Helmet" || Helmet.GetComponent<AttributesController>().Class != Class)) || Helmet == null) {
             Helmet = null;
             return;
+
+        } else {
+            Helmet = Instantiate(Helmet, transform) as GameObject;
+            Helmet.transform.position = transform.position + Helmet.transform.position;
         }
-        Helmet = Instantiate(Helmet, transform) as GameObject;
-        Helmet.transform.position = transform.position + Helmet.transform.position;
     }
 
     void InstantiateChest() {
-        if (Chest != null && (Chest.tag != "Chest" || Chest.GetComponent<AttributesController>().Class != Class)) {
+        if ((Chest != null && (Chest.tag != "Chest" || Chest.GetComponent<AttributesController>().Class != Class)) || Chest == null) {
             Chest = null;
             return;
+
+        } else {
+            Chest = Instantiate(Chest, transform) as GameObject;
+            Chest.transform.position = transform.position + Chest.transform.position;
         }
-        Chest = Instantiate(Chest, transform) as GameObject;
-        Chest.transform.position = transform.position + Chest.transform.position;
     }
 
     void InstantiateShackle() {
-        if (Shackle != null && (Shackle.tag != "Shackle" || Shackle.GetComponent<AttributesController>().Class != Class)) {
+        if ((Shackle != null && (Shackle.tag != "Shackle" || Shackle.GetComponent<AttributesController>().Class != Class)) || Shackle == null) {
             Shackle = null;
             return;
+        } else {
+            Shackle = Instantiate(Shackle, transform) as GameObject;
+            Shackle.transform.position = transform.position + Shackle.transform.position;
         }
-        Shackle = Instantiate(Shackle, transform) as GameObject;
-        Shackle.transform.position = transform.position + Shackle.transform.position;
     }
 
     void InstantiateWeapon() {
-        if (Weapon != null && (Weapon.tag != "Weapon" || Weapon.GetComponent<AttributesController>().Class != Class)) {
+        if ((Weapon != null && (Weapon.tag != "Weapon" || Weapon.GetComponent<AttributesController>().Class != Class)) || Weapon == null) {
             Weapon = null;
             return;
+        } else {
+            Weapon = Instantiate(Weapon, transform) as GameObject;
+            Weapon.transform.position = transform.position + Weapon.transform.position;
         }
-        Weapon = Instantiate(Weapon, transform) as GameObject;
-        Weapon.transform.position = transform.position + Weapon.transform.position;
     }
 
     void InstantiateTrinket() {
-        if (Trinket != null && Trinket.tag != "Trinket"){
+        if ((Trinket != null && Trinket.tag != "Trinket") || Trinket == null) {
             Trinket = null;
             return;
+        } else {
+            Trinket = Instantiate(Trinket, transform) as GameObject;
+            Trinket.transform.position = transform.position + Trinket.transform.position;
         }
-        Trinket = Instantiate(Trinket, transform) as GameObject;
-        Trinket.transform.position = transform.position + Trinket.transform.position;
     }
 }
