@@ -18,10 +18,15 @@ public class ControllerManager : MonoBehaviour {
 
     int Direction;
 
-	// Use this for initialization
-	void Start () {
+    void Awake() {
+        DontDestroyOnLoad(gameObject);
         MoveVector = new Vector2(0, 0);
         AttackVector = new Vector2(0, 0);
+    }
+
+    // Use this for initialization
+    void Start () {
+
 	}
 	
 	// Update is called once per frame
@@ -58,28 +63,28 @@ public class ControllerManager : MonoBehaviour {
             MoveVector = new Vector2(0, -1);
         }
         if (Input.GetKey(MoveLeft) && Input.GetKey(MoveUp)) {
-            MoveVector = new Vector2(-1, 1);
+            MoveVector = new Vector2(-Mathf.Sqrt(2)/2, Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveLeft) && Input.GetKey(MoveDown)) {
-            MoveVector = new Vector2(-1, -1);
+            MoveVector = new Vector2(-Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveRight) && Input.GetKey(MoveUp)) {
-            MoveVector = new Vector2(1, 1);
+            MoveVector = new Vector2(Mathf.Sqrt(2) / 2, Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveRight) && Input.GetKey(MoveDown)) {
-            MoveVector = new Vector2(1, -1);
+            MoveVector = new Vector2(Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveUp) && Input.GetKey(MoveLeft)) {
-            MoveVector = new Vector2(-1, 1);
+            MoveVector = new Vector2(-Mathf.Sqrt(2) / 2, Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveUp) && Input.GetKey(MoveRight)) {
-            MoveVector = new Vector2(1, 1);
+            MoveVector = new Vector2(Mathf.Sqrt(2) / 2, Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveDown) && Input.GetKey(MoveLeft)) {
-            MoveVector = new Vector2(-1, -1);
+            MoveVector = new Vector2(-Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveDown) && Input.GetKey(MoveRight)) {
-            MoveVector = new Vector2(1, -1);
+            MoveVector = new Vector2(Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2);
         }
 
         //Stop player movement on corresponding axis on key release

@@ -3,48 +3,51 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour {
-    private ControllerManager CM;
-    public string Name;
-    public string Class;
-    public int lvl;
-
-    private GameObject BaseModel;
-
-    public GameObject Helmet;
-    public GameObject Chest;
-    public GameObject Shackle;
-    public GameObject Weapon;
-    public GameObject Trinket;
-
     public float movement_animation_interval = 1f;
     public float attack_animation_interval = 1f;
 
-    public float MaxHealth;
-    public float MaxMana;
-    public float MaxAD;
-    public float MaxAP;
-    public float MaxAttkSpd = 1f;
-    public float MaxMoveSpd = 1f;
-    public float MaxDefense;
+    public CharacterDataStruct PlayerData;
 
-    private float CurrHealth;
-    private float CurrMana;
-    private float CurrAD;
-    private float CurrAP;
-    private float CurrAttSpd;
-    private float CurrMoveSpd;
-    private float CurrDefense;
+    GameObject HelmetPrefab;
+    GameObject ChestPrefab;
+    GameObject ShacklePrefab;
+    GameObject WeaponPrefab;
+    GameObject TrinketPrefab;
 
-    public float CritChance = 0.3f;
-    public float CritDmgBounus = 1f;
+    [HideInInspector]
+    public float CurrHealth;
+    [HideInInspector]
+    public float CurrMana;
+    [HideInInspector]
+    public float CurrAD;
+    [HideInInspector]
+    public float CurrAP;
+    [HideInInspector]
+    public float CurrAttSpd;
+    [HideInInspector]
+    public float CurrMoveSpd;
+    [HideInInspector]
+    public float CurrDefense;
+    [HideInInspector]
+    public float CurrCritChance;
+    [HideInInspector]
+    public float CurrCritDmgBounus;
+
     Rigidbody2D rb;
-    // Use this for initialization
-    void Start() {
-        //QualitySettings.vSyncCount = 0;
-        //Application.targetFrameRate = 30;
-        CM = FindObjectOfType<ControllerManager>();
-        InitPlayer();
+    private ControllerManager CM;
+    private SaveLoadManager SLM;
 
+    private GameObject BaseModel;
+
+    void Awake() {
+        CM = FindObjectOfType<ControllerManager>(); //An Online Controll Manager is needed
+        if (transform.parent.tag == "MainPlayer") {
+            SLM = FindObjectOfType<SaveLoadManager>();
+        }
+    }
+
+    void Start() {
+        InitPlayer();
     }
 
     // Update is called once per frame
@@ -58,24 +61,26 @@ public class PlayerController : MonoBehaviour {
     }
 
     void FixedUpdate() {
-        MoveUpdate();
+         MoveUpdate();
     }
 
+
+
     //----------public
-    public float GetPlayerAttackCD() {
+    public float GetAttackCD() {
         return attack_animation_interval/CurrAttSpd * 0.5f;
     }
 
-    public float GetPlayerMovementAnimSpeed() {
+    public float GetMovementAnimSpeed() {
         return CurrMoveSpd / (movement_animation_interval);
     }
 
-    public float GetPlayerAttackAnimSpeed() {
+    public float GetAttackAnimSpeed() {
         return CurrAttSpd / (attack_animation_interval);
     }
 
     public string GetName() {
-        return Name;
+        return PlayerData.Name;
     }
 
     public float GetCurrentHealth() {
@@ -83,14 +88,13 @@ public class PlayerController : MonoBehaviour {
     }
 
     public float GetMaxHealth() {
-        return MaxHealth;
+        return PlayerData.MaxHealth;
     }
 
     public DMG AutoAttackDamageDeal() {//Subject to change for classes scale with AP
         DMG dmg;
-        if (Random.value < CritChance) {
-            //dmg.Damage = CurrAD + CurrAD * CritDmgBounus;
-            dmg.Damage = CurrAD + CurrAD * CritDmgBounus;
+        if (Random.value < CurrCritChance) {
+            dmg.Damage = CurrAD + CurrAD * CurrCritDmgBounus;
             dmg.IsCrit = true;
         }
         else {
@@ -104,42 +108,44 @@ public class PlayerController : MonoBehaviour {
     void InitPlayer() {
         InstaniateEquipment();
 
-        CurrHealth = MaxHealth;
-        CurrMana = MaxMana;
-        CurrAD = MaxAD;
-        CurrAP = MaxAP;
-        CurrAttSpd = MaxAttkSpd;
-        CurrMoveSpd = MaxMoveSpd;
+        CurrHealth = PlayerData.MaxHealth;
+        CurrMana = PlayerData.MaxMana;
+        CurrAD = PlayerData.MaxAD;
+        CurrAP = PlayerData.MaxAP;
+        CurrAttSpd = PlayerData.MaxAttkSpd;
+        CurrMoveSpd = PlayerData.MaxMoveSpd;
+        CurrCritChance = PlayerData.MaxCritChance;
+        CurrCritDmgBounus = PlayerData.MaxCritDmgBounus;
         rb = GetComponent<Rigidbody2D>();
     }
 
     void BaseModelUodate() {
         Animator BaseModelAnim = BaseModel.GetComponent<Animator>();
         BaseModelAnim.SetInteger("Direction", CM.GetDirection());
-        BaseModelAnim.speed = GetPlayerMovementAnimSpeed();
+        BaseModelAnim.speed = GetMovementAnimSpeed();
     }
 
     void HelmetUpdate() {
-        if (Helmet != null) {
-            Animator HelmetAnim = Helmet.GetComponent<Animator>();
+        if (HelmetPrefab != null) {
+            Animator HelmetAnim = HelmetPrefab.GetComponent<Animator>();
             HelmetAnim.SetInteger("Direction", CM.GetDirection());
-            HelmetAnim.speed = GetPlayerMovementAnimSpeed();
+            HelmetAnim.speed = GetMovementAnimSpeed();
         }
     }
 
     void ChestUpdate() {
-        if (Chest != null) {
-            Animator ChestAnim = Chest.GetComponent<Animator>();
+        if (ChestPrefab != null) {
+            Animator ChestAnim = ChestPrefab.GetComponent<Animator>();
             ChestAnim.SetInteger("Direction", CM.GetDirection());
-            ChestAnim.speed = GetPlayerMovementAnimSpeed();
+            ChestAnim.speed = GetMovementAnimSpeed();
         }
     }
 
     void ShackleUpdate() {
-        if (Shackle != null) {
-            Animator ShackleAnim = Shackle.GetComponent<Animator>();
+        if (ShacklePrefab != null) {
+            Animator ShackleAnim = ShacklePrefab.GetComponent<Animator>();
             ShackleAnim.SetInteger("Direction", CM.GetDirection());
-            ShackleAnim.speed = GetPlayerMovementAnimSpeed();
+            ShackleAnim.speed = GetMovementAnimSpeed();
         }
     }
 
@@ -153,19 +159,19 @@ public class PlayerController : MonoBehaviour {
     }
 
     void WeaponUpdate() {
-        if (Weapon != null) {
-            Animator WeaponAnim = Weapon.GetComponent<Animator>();
+        if (WeaponPrefab != null) {
+            Animator WeaponAnim = WeaponPrefab.GetComponent<Animator>();
             WeaponAnim.SetInteger("Direction", CM.GetDirection());
             //WeaponAnim.speed = GetPlayerMovementAnimSpeed();
-            WeaponAnim.speed = GetPlayerAttackAnimSpeed();
+            WeaponAnim.speed = GetAttackAnimSpeed();
             if (CM.GetDirection() == 3)
-                Weapon.GetComponent<SpriteRenderer>().sortingOrder = 0;
+                WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 0;
             else
-                Weapon.GetComponent<SpriteRenderer>().sortingOrder = 2;
+                WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 2;
             if (CM.GetAttackVector() != Vector2.zero) {//Attack Update
                 WeaponAnim.SetBool("IsAttacking", true);
                 WeaponAnim.SetInteger("Direction", CM.GetDirection());
-                WeaponAnim.speed = GetPlayerAttackAnimSpeed();
+                WeaponAnim.speed = GetAttackAnimSpeed();
             } else {
                 WeaponAnim.SetBool("IsAttacking", false);
             }
@@ -179,16 +185,16 @@ public class PlayerController : MonoBehaviour {
     }
 
     //-------helper
-
     void InstaniateEquipment() {
-        if (Class == "Warrior") {
+        if (PlayerData.Class == "Warrior") {
             BaseModel = Instantiate(Resources.Load("Red Ghost/Ghost/Red Ghost"), transform) as GameObject;
+            BaseModel.name = "Red Ghost";
             BaseModel.transform.position = transform.position + BaseModel.transform.position;
         }
-        else if(Class == "Mage") {
+        else if(PlayerData.Class == "Mage") {
 
         }
-        else if(Class == "Rogue") {
+        else if(PlayerData.Class == "Rogue") {
 
         }
         InstantiateHelmet();
@@ -199,54 +205,82 @@ public class PlayerController : MonoBehaviour {
     }
 
     void InstantiateHelmet() {
-        if ((Helmet != null && (Helmet.tag != "Helmet" || Helmet.GetComponent<AttributesController>().Class != Class)) || Helmet == null) {
-            Helmet = null;
+        if (PlayerData.Helmet == "null")
             return;
-
-        } else {
-            Helmet = Instantiate(Helmet, transform) as GameObject;
-            Helmet.transform.position = transform.position + Helmet.transform.position;
+        else {
+            GameObject PreLoadHelmet = Instantiate(Resources.Load("EquipmentPrefabs/"+PlayerData.Helmet)) as GameObject;
+            if(PreLoadHelmet.tag != "Helmet" || PreLoadHelmet.GetComponent<AttributesController>().Class != PlayerData.Class) {
+                return;
+            }else {
+                HelmetPrefab = PreLoadHelmet;
+                HelmetPrefab.name = PlayerData.Helmet;
+                HelmetPrefab.transform.parent = transform;
+                HelmetPrefab.transform.position = transform.position + HelmetPrefab.transform.position;
+            }
         }
     }
 
     void InstantiateChest() {
-        if ((Chest != null && (Chest.tag != "Chest" || Chest.GetComponent<AttributesController>().Class != Class)) || Chest == null) {
-            Chest = null;
+        if (PlayerData.Chest == "null")
             return;
-
-        } else {
-            Chest = Instantiate(Chest, transform) as GameObject;
-            Chest.transform.position = transform.position + Chest.transform.position;
+        else {
+            GameObject PreLoadChest = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Chest)) as GameObject;
+            if (PreLoadChest.tag != "Chest" || PreLoadChest.GetComponent<AttributesController>().Class != PlayerData.Class) {
+                return;
+            } else {
+                ChestPrefab = PreLoadChest;
+                ChestPrefab.name = PlayerData.Chest;
+                ChestPrefab.transform.parent = transform;
+                ChestPrefab.transform.position = transform.position + ChestPrefab.transform.position;
+            }
         }
     }
 
     void InstantiateShackle() {
-        if ((Shackle != null && (Shackle.tag != "Shackle" || Shackle.GetComponent<AttributesController>().Class != Class)) || Shackle == null) {
-            Shackle = null;
+        if (PlayerData.Shackle == "null")
             return;
-        } else {
-            Shackle = Instantiate(Shackle, transform) as GameObject;
-            Shackle.transform.position = transform.position + Shackle.transform.position;
+        else {
+            GameObject PreLoadShackle = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Shackle)) as GameObject;
+            if (PreLoadShackle.tag != "Shackle" || PreLoadShackle.GetComponent<AttributesController>().Class != PlayerData.Class) {
+                return;
+            } else {
+                ShacklePrefab = PreLoadShackle;
+                ShacklePrefab.name = PlayerData.Shackle;
+                ShacklePrefab.transform.parent = transform;
+                ShacklePrefab.transform.position = transform.position + ShacklePrefab.transform.position;
+            }
         }
     }
 
     void InstantiateWeapon() {
-        if ((Weapon != null && (Weapon.tag != "Weapon" || Weapon.GetComponent<AttributesController>().Class != Class)) || Weapon == null) {
-            Weapon = null;
+        if (PlayerData.Weapon == "null")
             return;
-        } else {
-            Weapon = Instantiate(Weapon, transform) as GameObject;
-            Weapon.transform.position = transform.position + Weapon.transform.position;
+        else {
+            GameObject PreLoadWeapon = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Weapon)) as GameObject;
+            if (PreLoadWeapon.tag != "Weapon" || PreLoadWeapon.GetComponent<AttributesController>().Class != PlayerData.Class) {
+                return;
+            } else {
+                WeaponPrefab = PreLoadWeapon;
+                WeaponPrefab.name = PlayerData.Weapon;
+                WeaponPrefab.transform.parent = transform;
+                WeaponPrefab.transform.position = transform.position + WeaponPrefab.transform.position;
+            }
         }
     }
 
     void InstantiateTrinket() {
-        if ((Trinket != null && Trinket.tag != "Trinket") || Trinket == null) {
-            Trinket = null;
+        if (PlayerData.Trinket == "null")
             return;
-        } else {
-            Trinket = Instantiate(Trinket, transform) as GameObject;
-            Trinket.transform.position = transform.position + Trinket.transform.position;
+        else {
+            GameObject PreLoadTrinket = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Trinket)) as GameObject;
+            if (PreLoadTrinket.tag != "Trinket") {
+                return;
+            } else {
+                TrinketPrefab = PreLoadTrinket;
+                TrinketPrefab.name = PlayerData.Trinket;
+                TrinketPrefab.transform.parent = transform;
+                TrinketPrefab.transform.position = transform.position + TrinketPrefab.transform.position;
+            }
         }
     }
 }

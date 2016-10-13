@@ -1,0 +1,11 @@
+0,OpOp,Warrior,0,0,100,0,1,0,1,1,0,0.3,1,Battered Plate Hood,Battered Breastplate,Battered Manacle,Battle Axe,Blood Orb
+------Slot Seperator------
+1,null,null,0,0,0,0,0,0,0,0,0,0,0,null,null,null,null,null
+------Slot Seperator------
+2,null,null,0,0,0,0,0,0,0,0,0,0,0,null,null,null,null,null
+------Slot Seperator------
+3,null,null,0,0,0,0,0,0,0,0,0,0,0,null,null,null,null,null
+------Slot Seperator------
+4,null,null,0,0,0,0,0,0,0,0,0,0,0,null,null,null,null,null
+------Slot Seperator------
+5,null,null,0,0,0,0,0,0,0,0,0,0,0,null,null,null,null,null

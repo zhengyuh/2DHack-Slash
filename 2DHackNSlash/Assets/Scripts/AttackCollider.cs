@@ -6,7 +6,6 @@ public class AttackCollider : MonoBehaviour {
     public float AttackBoxWidth = 0.16f;
     public float AttackBoxHeight = 0.32f;
     Animator WeaponAnim;
-    Rigidbody2D WeaponRB;
 
     float attackTimer = 0;
     float attackCD;
@@ -18,7 +17,6 @@ public class AttackCollider : MonoBehaviour {
     void Start() {
         WeaponAnim = this.GetComponent<Animator>();
         WeaponCollider = this.GetComponent<BoxCollider2D>();
-        WeaponRB = this.GetComponent<Rigidbody2D>();
         if(transform.parent!=null)
             Player = transform.parent.GetComponent<PlayerController>();
     }
@@ -41,11 +39,6 @@ public class AttackCollider : MonoBehaviour {
         }
     }
 
-    //void OnTriggerExit2D(Collider2D collider) {
-    //    //collider.GetComponent<Animator>().SetBool("IsHit", false);
-    //    print("EXIT");
-    //}
-
     void UpdateAttackCollider() {
         var CurrentState = WeaponAnim.GetCurrentAnimatorStateInfo(0);
         if (attackTimer > 0) {
@@ -53,7 +46,7 @@ public class AttackCollider : MonoBehaviour {
             attackTimer -= Time.deltaTime;
         } else if (CurrentState.IsName("combo1_left")) {
             if (attackTimer == 0) {
-                attackTimer = Player.GetPlayerAttackCD();
+                attackTimer = Player.GetAttackCD();
             } else if (attackTimer <= 0) {
                 WeaponCollider.enabled = false;
                 attackTimer = 0;
@@ -63,7 +56,7 @@ public class AttackCollider : MonoBehaviour {
             WeaponCollider.offset = new Vector2(-AttackRange, 0);
         } else if (CurrentState.IsName("combo1_right")) {
             if (attackTimer == 0) {
-                attackTimer = Player.GetPlayerAttackCD();
+                attackTimer = Player.GetAttackCD();
             } else if (attackTimer <= 0) {
                 WeaponCollider.enabled = false;
                 attackTimer = 0;
@@ -73,7 +66,7 @@ public class AttackCollider : MonoBehaviour {
             WeaponCollider.offset = new Vector2(AttackRange, 0);
         } else if (CurrentState.IsName("combo1_up")) {
             if (attackTimer == 0) {
-                attackTimer = Player.GetPlayerAttackCD();
+                attackTimer = Player.GetAttackCD();
             } else if (attackTimer <= 0) {
                 WeaponCollider.enabled = false;
                 attackTimer = 0;
@@ -83,7 +76,7 @@ public class AttackCollider : MonoBehaviour {
             WeaponCollider.offset = new Vector2(0, AttackRange);
         } else if (CurrentState.IsName("combo1_down")) {
             if (attackTimer == 0) {
-                attackTimer = Player.GetPlayerAttackCD();
+                attackTimer = Player.GetAttackCD();
             } else if (attackTimer <= 0) {
                 WeaponCollider.enabled = false;
                 attackTimer = 0;
