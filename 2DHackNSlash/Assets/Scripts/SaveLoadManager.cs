@@ -2,20 +2,27 @@
 using System.Collections;
 
 public class SaveLoadManager : MonoBehaviour {
-    PlayerController Player;
+    public int SlotIndexToLoad;
 
+    public static SaveLoadManager instance;
+    public static SaveLoadManager Instance { get { return instance; } }
     void Awake() {
-        DontDestroyOnLoad(gameObject);
+        if (instance == null) {
+            DontDestroyOnLoad(this);
+            instance = this;
+        }else {
+            Destroy(gameObject);
+        }
         DataManager.Load();
-        Player = FindObjectOfType<PlayerController>();
     }
 
     public void SaveCurrentPlayerInfo() {
+        PlayerController Player = FindObjectOfType<PlayerController>();
         DataManager.SaveCharacter(Player.PlayerData);
         DataManager.Save();
     }
 
-    public void LoadPlayerInfo() {
-        Player.PlayerData = DataManager.LoadCharacter(0);
+    public CharacterDataStruct LoadPlayerInfo(int SlotIndex) {
+        return DataManager.LoadCharacter(SlotIndex);
     }
 }

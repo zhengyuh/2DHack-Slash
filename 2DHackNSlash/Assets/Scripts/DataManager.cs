@@ -25,12 +25,14 @@ public static class DataManager{
                 CharacterData[i].MaxHealth + DataSeperator +
                 CharacterData[i].MaxMana + DataSeperator +
                 CharacterData[i].MaxAD + DataSeperator +
-                CharacterData[i].MaxAP + DataSeperator +
+                CharacterData[i].MaxMD + DataSeperator +
                 CharacterData[i].MaxAttkSpd + DataSeperator +
                 CharacterData[i].MaxMoveSpd + DataSeperator +
                 CharacterData[i].MaxDefense + DataSeperator +
                 CharacterData[i].MaxCritChance + DataSeperator +
                 CharacterData[i].MaxCritDmgBounus + DataSeperator +
+                CharacterData[i].MaxLPH + DataSeperator +
+                CharacterData[i].MaxMPH + DataSeperator +
 
                 CharacterData[i].Helmet + DataSeperator +
                 CharacterData[i].Chest + DataSeperator +
@@ -66,18 +68,20 @@ public static class DataManager{
             CharacterData[i].MaxHealth = float.Parse(CharacterInfoString[5]);
             CharacterData[i].MaxMana = float.Parse(CharacterInfoString[6]);
             CharacterData[i].MaxAD = float.Parse(CharacterInfoString[7]);
-            CharacterData[i].MaxAP = float.Parse(CharacterInfoString[8]);
+            CharacterData[i].MaxMD = float.Parse(CharacterInfoString[8]);
             CharacterData[i].MaxAttkSpd = float.Parse(CharacterInfoString[9]);
             CharacterData[i].MaxMoveSpd = float.Parse(CharacterInfoString[10]);
             CharacterData[i].MaxDefense = float.Parse(CharacterInfoString[11]);
             CharacterData[i].MaxCritChance = float.Parse(CharacterInfoString[12]);
             CharacterData[i].MaxCritDmgBounus = float.Parse(CharacterInfoString[13]);
+            CharacterData[i].MaxLPH = float.Parse(CharacterInfoString[14]);
+            CharacterData[i].MaxMPH = float.Parse(CharacterInfoString[15]);
 
-            CharacterData[i].Helmet = CharacterInfoString[14];
-            CharacterData[i].Chest = CharacterInfoString[15];
-            CharacterData[i].Shackle = CharacterInfoString[16];
-            CharacterData[i].Weapon = CharacterInfoString[17];
-            CharacterData[i].Trinket = CharacterInfoString[18];
+            CharacterData[i].Helmet = CharacterInfoString[16];
+            CharacterData[i].Chest = CharacterInfoString[17];
+            CharacterData[i].Shackle = CharacterInfoString[18];
+            CharacterData[i].Weapon = CharacterInfoString[19];
+            CharacterData[i].Trinket = CharacterInfoString[20];
         }
         LoadStream.Close();
     }
@@ -95,12 +99,14 @@ public static class DataManager{
                 CharacterData[i].MaxHealth + DataSeperator +
                 CharacterData[i].MaxMana + DataSeperator +
                 CharacterData[i].MaxAD + DataSeperator +
-                CharacterData[i].MaxAP + DataSeperator +
+                CharacterData[i].MaxMD + DataSeperator +
                 CharacterData[i].MaxAttkSpd + DataSeperator +
                 CharacterData[i].MaxMoveSpd + DataSeperator +
                 CharacterData[i].MaxDefense + DataSeperator +
                 CharacterData[i].MaxCritChance + DataSeperator +
                 CharacterData[i].MaxCritDmgBounus + DataSeperator +
+                CharacterData[i].MaxLPH + DataSeperator +
+                CharacterData[i].MaxMPH + DataSeperator +
 
                 "null" + DataSeperator +
                 "null" + DataSeperator +
@@ -114,10 +120,12 @@ public static class DataManager{
     }
 
     public static void SaveCharacter(CharacterDataStruct PlayerData) {
+        Debug.Log(PlayerData.Weapon);
         CharacterData[PlayerData.SlotIndex] = PlayerData;
     }
 
     public static CharacterDataStruct LoadCharacter(int SlotIndex) {
+        Load();
         return CharacterData[SlotIndex];
     }
 }

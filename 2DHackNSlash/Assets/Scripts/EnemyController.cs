@@ -14,24 +14,27 @@ public class EnemyController : MonoBehaviour {
     public float MaxHealth;
     public float MaxMana;
     public float MaxAD;
-    public float MaxAP;
+    public float MaxMD;
     public float MaxAttkSpd;
     public float MaxMoveSpd;
     public float MaxDefense;
 
-    private float CurrCritChance;
-    private float CurrCritDmgBounus;
+    public float MaxCritChance = 0.3f; //Percantage
+    public float MaxCritDmgBounus = 1f; //Percantage
+    public float MaxLPH;
+    public float MaxMPH;
 
     private float CurrHealth;
     private float CurrMana;
     private float CurrAD;
-    private float CurrAP;
+    private float CurrMD;
     private float CurrAttSpd;
     private float CurrMoveSpd;
     private float CurrDefense;
-
-    public float MaxCritChance = 0.3f; //Percantage
-    public float MaxCritDmgBounus = 1f; //Percantage
+    private float CurrCritChance;
+    private float CurrCritDmgBounus;
+    private float CurrLPH;
+    private float CurrMPH;
 
     List<GameObject> TargetList;
     GameObject Target;
@@ -52,13 +55,16 @@ public class EnemyController : MonoBehaviour {
         CurrHealth = MaxHealth;
         CurrMana = MaxMana;
         CurrAD = MaxAD;
-        CurrAP = MaxAP;
+        CurrMD = MaxMD;
         CurrAttSpd = MaxAttkSpd;
         CurrMoveSpd = MaxMoveSpd;
         CurrDefense = MaxDefense;
 
         CurrCritChance = MaxCritChance;
         CurrCritDmgBounus = MaxCritDmgBounus;
+
+        CurrLPH = MaxLPH;
+        CurrMPH = MaxMPH;
 	}
 	
 	// Update is called once per frame

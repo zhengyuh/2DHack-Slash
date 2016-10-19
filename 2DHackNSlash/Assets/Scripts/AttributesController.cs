@@ -12,7 +12,7 @@ class AttributesController : MonoBehaviour {
     public float AddHealth;
     public float AddMana;
     public float AddAD;
-    public float AddAP;
+    public float AddMD;
     public float AddAttkSpd;
     public float AddMoveSpd;
     public float AddDefense;
@@ -20,16 +20,22 @@ class AttributesController : MonoBehaviour {
     public float AddCritChance; //Percantage
     public float AddCritDmgBounus; //Percantage
 
+    public float AddLPH;
+    public float AddMPH;
+
     public void ApplyAttribute(CharacterDataStruct PlayerAttributes) {
         PlayerAttributes.MaxHealth += AddHealth;
         PlayerAttributes.MaxMana += AddMana;
         PlayerAttributes.MaxAD += AddAD;
-        PlayerAttributes.MaxAP += AddAP;
+        PlayerAttributes.MaxMD += AddMD;
         PlayerAttributes.MaxAttkSpd += AddAttkSpd;
         PlayerAttributes.MaxMoveSpd += AddMoveSpd;
         PlayerAttributes.MaxDefense += AddDefense;
 
         PlayerAttributes.MaxCritChance += AddCritChance;
         PlayerAttributes.MaxCritDmgBounus += AddCritDmgBounus;
+
+        PlayerAttributes.MaxLPH += AddLPH;
+        PlayerAttributes.MaxMPH += AddMPH;
     }
 }

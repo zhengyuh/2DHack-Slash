@@ -18,8 +18,15 @@ public class ControllerManager : MonoBehaviour {
 
     int Direction;
 
+    public static ControllerManager instance;
+    public static ControllerManager Instance { get { return instance; } }
     void Awake() {
-        DontDestroyOnLoad(gameObject);
+        if (instance != null && instance != this) {
+            Destroy(this.gameObject);
+        } else {
+            instance = this;
+            DontDestroyOnLoad(this);
+        }
         MoveVector = new Vector2(0, 0);
         AttackVector = new Vector2(0, 0);
     }

@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour {
     [HideInInspector]
     public float CurrAD;
     [HideInInspector]
-    public float CurrAP;
+    public float CurrMD;
     [HideInInspector]
     public float CurrAttSpd;
     [HideInInspector]
@@ -32,6 +32,10 @@ public class PlayerController : MonoBehaviour {
     public float CurrCritChance;
     [HideInInspector]
     public float CurrCritDmgBounus;
+    [HideInInspector]
+    public float CurrLPH;
+    [HideInInspector]
+    public float CurrMPH;
 
     Rigidbody2D rb;
     private ControllerManager CM;
@@ -39,10 +43,18 @@ public class PlayerController : MonoBehaviour {
 
     private GameObject BaseModel;
 
+
     void Awake() {
-        CM = FindObjectOfType<ControllerManager>(); //An Online Controll Manager is needed
         if (transform.parent.tag == "MainPlayer") {
-            SLM = FindObjectOfType<SaveLoadManager>();
+            if (ControllerManager.Instance) {
+                CM = ControllerManager.Instance;
+            } else
+                CM = FindObjectOfType<ControllerManager>();
+            if (SaveLoadManager.Instance)
+                SLM = SaveLoadManager.Instance;
+            else
+                SLM = FindObjectOfType<SaveLoadManager>();
+            PlayerData = SLM.LoadPlayerInfo(SLM.SlotIndexToLoad);
         }
     }
 
@@ -111,76 +123,92 @@ public class PlayerController : MonoBehaviour {
         CurrHealth = PlayerData.MaxHealth;
         CurrMana = PlayerData.MaxMana;
         CurrAD = PlayerData.MaxAD;
-        CurrAP = PlayerData.MaxAP;
+        CurrMD = PlayerData.MaxMD;
         CurrAttSpd = PlayerData.MaxAttkSpd;
         CurrMoveSpd = PlayerData.MaxMoveSpd;
         CurrCritChance = PlayerData.MaxCritChance;
         CurrCritDmgBounus = PlayerData.MaxCritDmgBounus;
+        CurrLPH = PlayerData.MaxLPH;
+        CurrMPH = PlayerData.MaxMPH;
+
         rb = GetComponent<Rigidbody2D>();
     }
 
     void BaseModelUodate() {
         Animator BaseModelAnim = BaseModel.GetComponent<Animator>();
-        BaseModelAnim.SetInteger("Direction", CM.GetDirection());
-        BaseModelAnim.speed = GetMovementAnimSpeed();
+        if (CM != null) {
+            BaseModelAnim.SetInteger("Direction", CM.GetDirection());
+            BaseModelAnim.speed = GetMovementAnimSpeed();
+        }
     }
 
     void HelmetUpdate() {
         if (HelmetPrefab != null) {
             Animator HelmetAnim = HelmetPrefab.GetComponent<Animator>();
-            HelmetAnim.SetInteger("Direction", CM.GetDirection());
-            HelmetAnim.speed = GetMovementAnimSpeed();
+            if (CM != null) {
+                HelmetAnim.SetInteger("Direction", CM.GetDirection());
+                HelmetAnim.speed = GetMovementAnimSpeed();
+            }
         }
     }
 
     void ChestUpdate() {
         if (ChestPrefab != null) {
             Animator ChestAnim = ChestPrefab.GetComponent<Animator>();
-            ChestAnim.SetInteger("Direction", CM.GetDirection());
-            ChestAnim.speed = GetMovementAnimSpeed();
+            if (CM != null) {
+                ChestAnim.SetInteger("Direction", CM.GetDirection());
+                ChestAnim.speed = GetMovementAnimSpeed();
+            }
         }
     }
 
     void ShackleUpdate() {
         if (ShacklePrefab != null) {
             Animator ShackleAnim = ShacklePrefab.GetComponent<Animator>();
-            ShackleAnim.SetInteger("Direction", CM.GetDirection());
-            ShackleAnim.speed = GetMovementAnimSpeed();
+            if (CM != null) {
+                ShackleAnim.SetInteger("Direction", CM.GetDirection());
+                ShackleAnim.speed = GetMovementAnimSpeed();
+            }
         }
     }
 
     void TrinketUpdate() {//Disable for non-wing trinkets
         //if (Trinket != null) {
         //    Animator TrinketAnim = Trinket.GetComponent<Animator>();
-        //    print(TrinketAnim.GetInteger("Direction"));
-        //    TrinketAnim.SetInteger("Direction", CM.GetDirection());
-        //    TrinketAnim.speed = GetPlayerMovementAnimSpeed();
+        //    if (CM != null) {
+        //        TrinketAnim.SetInteger("Direction", CM.GetDirection());
+        //        TrinketAnim.speed = GetPlayerMovementAnimSpeed();
+        //    }
         //}
     }
 
     void WeaponUpdate() {
         if (WeaponPrefab != null) {
             Animator WeaponAnim = WeaponPrefab.GetComponent<Animator>();
-            WeaponAnim.SetInteger("Direction", CM.GetDirection());
-            //WeaponAnim.speed = GetPlayerMovementAnimSpeed();
-            WeaponAnim.speed = GetAttackAnimSpeed();
-            if (CM.GetDirection() == 3)
-                WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 0;
-            else
-                WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 2;
-            if (CM.GetAttackVector() != Vector2.zero) {//Attack Update
-                WeaponAnim.SetBool("IsAttacking", true);
+            if (CM != null) {
                 WeaponAnim.SetInteger("Direction", CM.GetDirection());
+                //WeaponAnim.speed = GetPlayerMovementAnimSpeed();
                 WeaponAnim.speed = GetAttackAnimSpeed();
-            } else {
-                WeaponAnim.SetBool("IsAttacking", false);
+                if (CM.GetDirection() == 3)
+                    WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 0;
+                else
+                    WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 2;
+                if (CM.GetAttackVector() != Vector2.zero) {//Attack Update
+                    WeaponAnim.SetBool("IsAttacking", true);
+                    WeaponAnim.SetInteger("Direction", CM.GetDirection());
+                    WeaponAnim.speed = GetAttackAnimSpeed();
+                } else {
+                    WeaponAnim.SetBool("IsAttacking", false);
+                }
             }
         }
     }
 
     void MoveUpdate() {
-        if (CM.GetMoveVector() != Vector2.zero) {
-            rb.MovePosition(rb.position + CM.GetMoveVector() * CurrMoveSpd * Time.deltaTime);
+        if (CM != null) {
+            if (CM.GetMoveVector() != Vector2.zero) {
+                rb.MovePosition(rb.position + CM.GetMoveVector() * CurrMoveSpd * Time.deltaTime);
+            }
         }
     }
 

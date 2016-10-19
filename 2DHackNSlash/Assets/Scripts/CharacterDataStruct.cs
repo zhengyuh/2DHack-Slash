@@ -12,12 +12,14 @@ public struct CharacterDataStruct{
     public float MaxHealth;
     public float MaxMana;
     public float MaxAD;
-    public float MaxAP;
+    public float MaxMD;
     public float MaxAttkSpd;
     public float MaxMoveSpd;
     public float MaxDefense;
     public float MaxCritChance;
     public float MaxCritDmgBounus;
+    public float MaxLPH;
+    public float MaxMPH;
 
     public string Helmet;
     public string Chest;
