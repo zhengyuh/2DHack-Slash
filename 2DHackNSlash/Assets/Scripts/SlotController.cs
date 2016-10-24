@@ -16,12 +16,6 @@ public class SlotController : MonoBehaviour {
     SaveLoadManager SLM;
     CharacterDataStruct PlayerData;
 
-    GameObject HelmetPrefab;
-    GameObject ChestPrefab;
-    GameObject ShacklePrefab;
-    GameObject WeaponPrefab;
-    GameObject TrinketPrefab;
-
     private GameObject BaseModel;
 
     void Awake() {
@@ -108,89 +102,11 @@ public class SlotController : MonoBehaviour {
         } else if (PlayerData.Class == "Rogue") {
 
         }
-        InstantiateHelmet();
-        InstantiateChest();
-        InstantiateShackle();
-        InstantiateWeapon();
-        InstantiateTrinket();
-    }
-
-    void InstantiateHelmet() {
-        if (PlayerData.Helmet == "null")
-            return;
-        else {
-            GameObject PreLoadHelmet = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Helmet)) as GameObject;
-            if (PreLoadHelmet.tag != "Helmet" || PreLoadHelmet.GetComponent<AttributesController>().Class != PlayerData.Class) {
-                return;
-            } else {
-                HelmetPrefab = PreLoadHelmet;
-                HelmetPrefab.name = PlayerData.Helmet;
-                HelmetPrefab.transform.parent = transform;
-                HelmetPrefab.transform.position = transform.position + HelmetPrefab.transform.position;
-            }
-        }
-    }
-
-    void InstantiateChest() {
-        if (PlayerData.Chest == "null")
-            return;
-        else {
-            GameObject PreLoadChest = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Chest)) as GameObject;
-            if (PreLoadChest.tag != "Chest" || PreLoadChest.GetComponent<AttributesController>().Class != PlayerData.Class) {
-                return;
-            } else {
-                ChestPrefab = PreLoadChest;
-                ChestPrefab.name = PlayerData.Chest;
-                ChestPrefab.transform.parent = transform;
-                ChestPrefab.transform.position = transform.position + ChestPrefab.transform.position;
-            }
-        }
-    }
-
-    void InstantiateShackle() {
-        if (PlayerData.Shackle == "null")
-            return;
-        else {
-            GameObject PreLoadShackle = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Shackle)) as GameObject;
-            if (PreLoadShackle.tag != "Shackle" || PreLoadShackle.GetComponent<AttributesController>().Class != PlayerData.Class) {
-                return;
-            } else {
-                ShacklePrefab = PreLoadShackle;
-                ShacklePrefab.name = PlayerData.Shackle;
-                ShacklePrefab.transform.parent = transform;
-                ShacklePrefab.transform.position = transform.position + ShacklePrefab.transform.position;
-            }
-        }
-    }
-
-    void InstantiateWeapon() {
-        if (PlayerData.Weapon == "null")
-            return;
-        else {
-            GameObject PreLoadWeapon = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Weapon)) as GameObject;
-            if (PreLoadWeapon.tag != "Weapon" || PreLoadWeapon.GetComponent<AttributesController>().Class != PlayerData.Class) {
-                return;
-            } else {
-                WeaponPrefab = PreLoadWeapon;
-                WeaponPrefab.name = PlayerData.Weapon;
-                WeaponPrefab.transform.parent = transform;
-                WeaponPrefab.transform.position = transform.position + WeaponPrefab.transform.position;
-            }
-        }
-    }
-
-    void InstantiateTrinket() {
-        if (PlayerData.Trinket == "null")
-            return;
-        else {
-            GameObject PreLoadTrinket = Instantiate(Resources.Load("EquipmentPrefabs/" + PlayerData.Trinket)) as GameObject;
-            if (PreLoadTrinket.tag != "Trinket") {
-                return;
-            } else {
-                TrinketPrefab = PreLoadTrinket;
-                TrinketPrefab.name = PlayerData.Trinket;
-                TrinketPrefab.transform.parent = transform;
-                TrinketPrefab.transform.position = transform.position + TrinketPrefab.transform.position;
+        foreach (var e in PlayerData.Equipments) {
+            if (e.Value != null) {
+                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + e.Value.Name), transform) as GameObject;
+                equipPrefab.name = e.Value.Name;
+                equipPrefab.transform.position = transform.position + equipPrefab.transform.position;
             }
         }
     }

@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class ControllerManager : MonoBehaviour {
+    //Keyboard
+    public KeyCode Menu = KeyCode.Escape;
+    public KeyCode  CharacterSheet = KeyCode.C;
 
     public KeyCode MoveUp = KeyCode.W;
     public KeyCode MoveLeft = KeyCode.A;
@@ -13,14 +17,57 @@ public class ControllerManager : MonoBehaviour {
     public KeyCode AttackDown = KeyCode.DownArrow;
     public KeyCode AttackRight = KeyCode.RightArrow;
 
+    //Xbobx one Controller 
+
+    public string J_Start = "joystick button 7";
+    public string J_Back = "joystick button 6";
+
+    public string J_LeftAnalogHor = "J_HorizontalMove";//Axis
+    public string J_LeftAnalogVer = "J_VerticalMove";//Axis
+    public string J_RightAnalogHor = "J_HorizontalAttack";//Axis
+    public string J_RightAnalogVer = "J_VerticalAttack";//Axis
+    public string J_LeftTrigger = "joystick button 8";
+    public string J_RightTrigger = "joystick button 9";
+
+    public string J_LB = "joystick button 4";
+    public string J_RB = "joystick button 5";
+    public string J_LTRT = "J_LTRT"; //This one is actually an axis for fk sake IDK Why
+
+    public string J_X = "joystick button 2";
+    public string J_Y = "joystick button 3";
+    public string J_B = "joystick button 1";
+    public string J_A = "joystick button 0";
+
+    public string J_DH = "J_DpadHor";//Axis
+    public string J_DV = "J_DpadVer";//Axis
+
+
+    //public string J_LB 
+
     Vector2 MoveVector;
     Vector2 AttackVector;
 
     int Direction;
 
+    //UI
+    MenuController MC;
+    CharacterSheetController CSC;
+
     public static ControllerManager instance;
     public static ControllerManager Instance { get { return instance; } }
+
+    void OnLevelWasLoaded() {
+        if (Application.loadedLevelName != "Menu" && Application.loadedLevelName != "Selection") {//Only get them on player scene
+            MC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/Menu").GetComponent<MenuController>();
+            CSC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/CharacterSheet").GetComponent<CharacterSheetController>();
+        }
+    }
+
     void Awake() {
+        if(Application.loadedLevelName != "Menu" && Application.loadedLevelName != "Selection") {//For debugging
+            MC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/Menu").GetComponent<MenuController>();
+            CSC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/CharacterSheet").GetComponent<CharacterSheetController>();
+        }
         if (instance != null && instance != this) {
             Destroy(this.gameObject);
         } else {
@@ -35,12 +82,36 @@ public class ControllerManager : MonoBehaviour {
     void Start () {
 
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
+        if (MC && CSC) {
+            MainPlayerUIUpdate();
+            if (MC.IsOn() || CSC.IsOn())
+                return;
+        }
         UpdateMoveVector();
         UpdateAttackVector();
         UpdateDirection();
+    }
+
+    private void MainPlayerUIUpdate() {
+        if (Input.GetKeyDown(Menu) || Input.GetKeyDown(J_Start)) {
+            MoveVector = Vector2.zero;
+            AttackVector = Vector2.zero;
+            if (CSC.IsOn())
+                CSC.TurnOff();
+            else
+                MC.Toggle();
+              
+        }
+        else if (Input.GetKeyDown(CharacterSheet) || Input.GetKeyDown(J_X)) {
+            MoveVector = Vector2.zero;
+            AttackVector = Vector2.zero;
+            if (MC.IsOn())
+                MC.TurnOff();
+            CSC.Toggle();
+        }
     }
 
     public Vector2 GetMoveVector() {
@@ -57,6 +128,38 @@ public class ControllerManager : MonoBehaviour {
    
     //Moving Update
     void UpdateMoveVector() {
+        Vector2 J_MoveInput = new Vector2(Input.GetAxisRaw(J_LeftAnalogHor), Input.GetAxisRaw(J_LeftAnalogVer));
+        if (J_MoveInput != Vector2.zero) {
+            GetControllerMoveInput(J_MoveInput);
+        }
+        else
+            GetKeyboardMoveInput(); 
+    }
+
+    //Attacking Update
+    void UpdateAttackVector() {
+        Vector2 J_AttackInput = new Vector2(Input.GetAxisRaw(J_RightAnalogHor), Input.GetAxisRaw(J_RightAnalogVer));
+        if (J_AttackInput != Vector2.zero) {
+            GetControllerAttackInput(J_AttackInput);
+        } else
+            GetKeyboardAttackInput();
+    }
+    
+    void UpdateDirection() {
+        Vector2 J_MoveInput = new Vector2(Input.GetAxisRaw(J_LeftAnalogHor), Input.GetAxisRaw(J_LeftAnalogVer));
+        Vector2 J_AttackInput = new Vector2(Input.GetAxisRaw(J_RightAnalogHor), Input.GetAxisRaw(J_RightAnalogVer));
+        if (J_MoveInput != Vector2.zero || J_AttackInput != Vector2.zero) {
+            GetControllerDirection(J_MoveInput, J_AttackInput);
+        } else {
+            GetKeyboardDirection();
+        }
+    }
+
+    void GetControllerMoveInput(Vector2 J_MoveInput) {
+        MoveVector = Vector3.Normalize(J_MoveInput - Vector2.zero);
+    }
+
+    void GetKeyboardMoveInput() {
         if (Input.GetKey(MoveLeft)) {
             MoveVector = new Vector2(-1, 0);
         }
@@ -70,7 +173,7 @@ public class ControllerManager : MonoBehaviour {
             MoveVector = new Vector2(0, -1);
         }
         if (Input.GetKey(MoveLeft) && Input.GetKey(MoveUp)) {
-            MoveVector = new Vector2(-Mathf.Sqrt(2)/2, Mathf.Sqrt(2) / 2);
+            MoveVector = new Vector2(-Mathf.Sqrt(2) / 2, Mathf.Sqrt(2) / 2);
         }
         if (Input.GetKey(MoveLeft) && Input.GetKey(MoveDown)) {
             MoveVector = new Vector2(-Mathf.Sqrt(2) / 2, -Mathf.Sqrt(2) / 2);
@@ -101,20 +204,23 @@ public class ControllerManager : MonoBehaviour {
         if (!Input.GetKey(MoveUp) && !Input.GetKey(MoveDown)) {
             MoveVector = new Vector2(MoveVector.x, 0);
         }
-        
+
         //Stop player movement on move direction conflict
-        if(Input.GetKey(MoveLeft) && Input.GetKey(MoveRight))
+        if (Input.GetKey(MoveLeft) && Input.GetKey(MoveRight))
             MoveVector = new Vector2(0, MoveVector.y);
         if (Input.GetKey(MoveUp) && Input.GetKey(MoveDown))
             MoveVector = new Vector2(MoveVector.x, 0);
 
-        if(!Input.GetKey(MoveLeft) && !Input.GetKey(MoveRight) && !Input.GetKey(MoveUp) && !Input.GetKey(MoveDown)) {
+        if (!Input.GetKey(MoveLeft) && !Input.GetKey(MoveRight) && !Input.GetKey(MoveUp) && !Input.GetKey(MoveDown)) {
             MoveVector = Vector2.zero;
         }
     }
 
-    //Attacking Update
-    void UpdateAttackVector() {
+    void GetControllerAttackInput(Vector2 J_AttackInput) {
+        AttackVector = Vector3.Normalize(J_AttackInput - Vector2.zero);
+    }
+
+    void GetKeyboardAttackInput() {
         if (Input.GetKey(AttackLeft)) {
             AttackVector = new Vector2(-1, 0);
         }
@@ -166,12 +272,40 @@ public class ControllerManager : MonoBehaviour {
         if (Input.GetKey(AttackUp) && Input.GetKey(AttackDown))
             AttackVector = new Vector2(AttackVector.x, 0);
 
-        if(!Input.GetKey(AttackLeft) && !Input.GetKey(AttackRight) && !Input.GetKey(AttackUp) && !Input.GetKey(AttackDown)) {
+        if (!Input.GetKey(AttackLeft) && !Input.GetKey(AttackRight) && !Input.GetKey(AttackUp) && !Input.GetKey(AttackDown)) {
             AttackVector = Vector2.zero;
         }
     }
+    void GetControllerDirection(Vector2 J_MoveInput, Vector2 J_AttackInput) {
+        if (AttackVector == Vector2.zero) {
+            if (Mathf.Abs(J_MoveInput.x) > Mathf.Abs(J_MoveInput.y)) {
+                if (J_MoveInput.x < 0)
+                    Direction = 1;
+                else if (J_MoveInput.x > 0)
+                    Direction = 2;
+            }
+            if (Mathf.Abs(J_MoveInput.x) < Mathf.Abs(J_MoveInput.y)) {
+                if (J_MoveInput.y < 0)
+                    Direction = 0;
+                else if (J_MoveInput.y > 0)
+                    Direction = 3;
+            }
+        }
 
-    void UpdateDirection() {
+        if (Mathf.Abs(J_AttackInput.x) > Mathf.Abs(J_AttackInput.y)) {
+            if (J_AttackInput.x < 0)
+                Direction = 1;
+            else if (J_AttackInput.x > 0)
+                Direction = 2;
+        }
+        if (Mathf.Abs(J_AttackInput.x) < Mathf.Abs(J_AttackInput.y)) {
+            if (J_AttackInput.y < 0)
+                Direction = 0;
+            else if (J_AttackInput.y > 0)
+                Direction = 3;
+        }
+    }
+    void GetKeyboardDirection() {
         //Keydown Update
         if (Input.GetKeyDown(MoveLeft) && AttackVector == Vector2.zero) {
             Direction = 1;

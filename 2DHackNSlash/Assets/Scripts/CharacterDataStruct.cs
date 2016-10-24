@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public struct CharacterDataStruct{
@@ -9,21 +10,18 @@ public struct CharacterDataStruct{
     public int lvl;
     public int paragon_lvl;
 
-    public float MaxHealth;
-    public float MaxMana;
-    public float MaxAD;
-    public float MaxMD;
-    public float MaxAttkSpd;
-    public float MaxMoveSpd;
-    public float MaxDefense;
-    public float MaxCritChance;
-    public float MaxCritDmgBounus;
-    public float MaxLPH;
-    public float MaxMPH;
+    public float BaseHealth;
+    public float BaseMana;
+    public float BaseAD;
+    public float BaseMD;
+    public float BaseAttkSpd;
+    public float BaseMoveSpd;
+    public float BaseDefense;
+    public float BaseCritChance;
+    public float BaseCritDmgBounus;
+    public float BaseLPH;
+    public float BaseMPH;
 
-    public string Helmet;
-    public string Chest;
-    public string Shackle;
-    public string Weapon;
-    public string Trinket;
+    public Dictionary<string, Equipment> Equipments;
+    public Equipment[] Inventory;
 }

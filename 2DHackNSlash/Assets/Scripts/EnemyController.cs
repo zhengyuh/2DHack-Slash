@@ -107,15 +107,15 @@ public class EnemyController : MonoBehaviour {
     }
 
     public float GetAttackCD() {
-        return attack_animation_interval / CurrAttSpd * 0.5f;
+        return attack_animation_interval / (CurrAttSpd/100) * 0.5f;
     }
 
     public float GetMovementAnimSpeed() {
-        return CurrMoveSpd / (movement_animation_interval);
+        return (CurrMoveSpd/100) / (movement_animation_interval);
     }
 
     public float GetAttackAnimSpeed() {
-        return CurrAttSpd / (attack_animation_interval);
+        return (CurrAttSpd/100) / (attack_animation_interval);
     }
 
 
@@ -128,6 +128,8 @@ public class EnemyController : MonoBehaviour {
                 MoveVector = (Vector2)Vector3.Normalize(Target.transform.position - transform.position);
             } else
                 MoveVector = Vector2.zero;
+        } else {
+            MoveVector = Vector2.zero;
         }
     }
     void DirectionUpdate() {
@@ -146,7 +148,7 @@ public class EnemyController : MonoBehaviour {
 
     void MoveUpdate() {
         if (MoveVector != Vector2.zero)
-            rb.MovePosition(rb.position + MoveVector * CurrMoveSpd * Time.deltaTime);
+            rb.MovePosition(rb.position + MoveVector * (CurrMoveSpd/100) * Time.deltaTime);
     }
 
     void AnimUpdate() {
@@ -154,6 +156,8 @@ public class EnemyController : MonoBehaviour {
             Anim.SetBool("IsMoving", true);
             Anim.SetInteger("Direction", Direction);
             Anim.speed = GetMovementAnimSpeed();
+        } else {
+            Anim.SetBool("IsMoving", false);
         }
     }
 
