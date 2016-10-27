@@ -9,6 +9,8 @@ Shader "Sprites/SpriteDlight"
 		[MaterialToggle] _CelShading ("Cel Shading", Float) = 1
 		_BumpMap("Normal Map", 2D) = "bump" {}
 		_NormalScale("Normal Scale", FLoat) = 1
+		_EmissionMap("Emission Map", 2D) = "black" {}
+		[HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
 	}
 
 	SubShader
@@ -36,6 +38,8 @@ Shader "Sprites/SpriteDlight"
 		fixed4 _Color;
 		sampler2D _CelRamp;
 		sampler2D _BumpMap;
+		sampler2D _EmissionMap;
+		fixed4 _EmissionColor;
 		fixed _NormalScale;
 		fixed _CelShading;
 
@@ -56,6 +60,7 @@ Shader "Sprites/SpriteDlight"
 				c.rgb = s.Albedo * _LightColor0.rgb * (NdotL * atten);
 			
 			c.a = s.Alpha;
+
 			return c;
 		}
 
@@ -75,12 +80,16 @@ Shader "Sprites/SpriteDlight"
 			fixed4 a = c * UNITY_LIGHTMODEL_AMBIENT;
 			o.Albedo = a.rgb * c.a;
 			o.Alpha = c.a;
+
+			half4 emission = tex2D(_EmissionMap, IN.uv_MainTex) * _EmissionColor;
+			o.Albedo.rgb += (emission.rgb);
 			
 			fixed4 packednormal = tex2D (_BumpMap, IN.uv_BumpMap);
 			fixed3 normal;
 			normal.xy = packednormal.wy * 2 - 1;
 			normal.xy *= _NormalScale;
 			normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
+
 			
 			o.Normal = normal;
 		}

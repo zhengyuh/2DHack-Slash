@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class ControllerManager : MonoBehaviour {
     //Keyboard
     public KeyCode Menu = KeyCode.Escape;
-    public KeyCode  CharacterSheet = KeyCode.C;
+    public KeyCode CharacterSheet = KeyCode.C;
 
     public KeyCode MoveUp = KeyCode.W;
     public KeyCode MoveLeft = KeyCode.A;
@@ -16,6 +16,8 @@ public class ControllerManager : MonoBehaviour {
     public KeyCode AttackLeft = KeyCode.LeftArrow;
     public KeyCode AttackDown = KeyCode.DownArrow;
     public KeyCode AttackRight = KeyCode.RightArrow;
+
+    public KeyCode Interact = KeyCode.F; 
 
     //Xbobx one Controller 
 
@@ -43,31 +45,21 @@ public class ControllerManager : MonoBehaviour {
 
 
     //public string J_LB 
+    [HideInInspector]
+    public Vector2 MoveVector;
+    [HideInInspector]
+    public Vector2 AttackVector;
+    [HideInInspector]
+    public int Direction;
 
-    Vector2 MoveVector;
-    Vector2 AttackVector;
+    [HideInInspector]
+    public bool AllowControlUpdate = true;
 
-    int Direction;
-
-    //UI
-    MenuController MC;
-    CharacterSheetController CSC;
 
     public static ControllerManager instance;
     public static ControllerManager Instance { get { return instance; } }
 
-    void OnLevelWasLoaded() {
-        if (Application.loadedLevelName != "Menu" && Application.loadedLevelName != "Selection") {//Only get them on player scene
-            MC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/Menu").GetComponent<MenuController>();
-            CSC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/CharacterSheet").GetComponent<CharacterSheetController>();
-        }
-    }
-
     void Awake() {
-        if(Application.loadedLevelName != "Menu" && Application.loadedLevelName != "Selection") {//For debugging
-            MC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/Menu").GetComponent<MenuController>();
-            CSC = GameObject.Find("MainPlayer").transform.Find("PlayerController/PlayerUI/CharacterSheet").GetComponent<CharacterSheetController>();
-        }
         if (instance != null && instance != this) {
             Destroy(this.gameObject);
         } else {
@@ -85,45 +77,11 @@ public class ControllerManager : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (MC && CSC) {
-            MainPlayerUIUpdate();
-            if (MC.IsOn() || CSC.IsOn())
-                return;
+        if (AllowControlUpdate) {
+            UpdateMoveVector();
+            UpdateAttackVector();
+            UpdateDirection();
         }
-        UpdateMoveVector();
-        UpdateAttackVector();
-        UpdateDirection();
-    }
-
-    private void MainPlayerUIUpdate() {
-        if (Input.GetKeyDown(Menu) || Input.GetKeyDown(J_Start)) {
-            MoveVector = Vector2.zero;
-            AttackVector = Vector2.zero;
-            if (CSC.IsOn())
-                CSC.TurnOff();
-            else
-                MC.Toggle();
-              
-        }
-        else if (Input.GetKeyDown(CharacterSheet) || Input.GetKeyDown(J_X)) {
-            MoveVector = Vector2.zero;
-            AttackVector = Vector2.zero;
-            if (MC.IsOn())
-                MC.TurnOff();
-            CSC.Toggle();
-        }
-    }
-
-    public Vector2 GetMoveVector() {
-        return MoveVector;
-    }
-
-    public Vector2 GetAttackVector() {
-        return AttackVector;
-    }
-
-    public int GetDirection() {
-        return Direction;
     }
    
     //Moving Update

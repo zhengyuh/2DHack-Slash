@@ -217,7 +217,8 @@ public static class DataManager{
     private static Equipment ReadOnePieceOfEquip(string PieceEquipData) {
         if (PieceEquipData == "null")
             return null;
-        Equipment E = ScriptableObject.CreateInstance<Equipment>();
+        //Equipment E = ScriptableObject.CreateInstance<Equipment>();
+        Equipment E = new Equipment();
         string[] S_PieceEquipData = Regex.Split(PieceEquipData, DataSeperator);
         E.Rarity = int.Parse(S_PieceEquipData[0]);
         E.Name = S_PieceEquipData[1];
@@ -241,6 +242,7 @@ public static class DataManager{
 
         E.Reroll = int.Parse(S_PieceEquipData[16]);
         E.Reforged = int.Parse(S_PieceEquipData[17]);
+        //Debug.Log(E.Name);
         return E;
     }
 

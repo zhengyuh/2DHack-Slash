@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 public class InventoryButtonController : MonoBehaviour {
     PlayerController PC;
-    public GameObject EquipmentIcon;
-    private int Slot;
+    GameObject EquipmentIcon;
+    private int Slot = -999;
 
     GameObject ES;
     GameObject EquippedSlotButtons;
@@ -14,12 +14,12 @@ public class InventoryButtonController : MonoBehaviour {
     Image StatsBG;
 
     void Awake() {
+        Slot = int.Parse(gameObject.name);
         PC = GameObject.Find("MainPlayer/PlayerController").transform.GetComponent<PlayerController>();
         ES = GameObject.Find("EventSystem");
         EquippedSlotButtons = GameObject.Find("MainPlayer/PlayerController/PlayerUI/CharacterSheet/EquippedSlotButtons").gameObject;
         StatsText = transform.FindChild("StatsText").gameObject.GetComponent<Text>();
         StatsBG = transform.FindChild("StatsBG").gameObject.GetComponent<Image>();
-        Slot = int.Parse(gameObject.name);
     }
 
     // Use this for initialization
@@ -30,21 +30,21 @@ public class InventoryButtonController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         UpdateStats();
-	}
+
+    }
 
     public void OnClickEquip() {
-        if (PC.GetInventoryItem(Slot)) {
+        if (PC.GetInventoryItem(Slot)!=null) {
             Equipment E = PC.GetInventoryItem(Slot);
             if (PC.Compatible(E)) {
-                if (PC.GetEquippedItem(E.Type)) {//Has Equipped Item
+                if (PC.GetEquippedItem(E.Type)!=null) {//Has Equipped Item
                     Equipment TakeOff = PC.GetEquippedItem(E.Type);
                     PC.UnEquip(TakeOff.Type);
                     PC.RemoveFromInventory(Slot, E);
                     EquippedSlotButtons.transform.Find(E.Type).GetComponent<EquippedButtonController>().UpdateSlot();
                     UpdateSlot();
                     PC.Equip(E);
-                    PC.AddToInventory(Slot, TakeOff);
-                    
+                    PC.AddToInventory(Slot, TakeOff);                   
                 } else {
                     PC.Equip(E);
                     PC.RemoveFromInventory(Slot, E);
@@ -58,23 +58,24 @@ public class InventoryButtonController : MonoBehaviour {
     }
 
     public void UpdateSlot() {
-        if (PC.GetInventoryItem(Slot)) {
-            EquipmentIcon = Instantiate(Resources.Load("EquipmentIcons/" + PC.GetInventoryItem(Slot).Name + "_Icon"), transform) as GameObject;
-            EquipmentIcon.name = PC.GetInventoryItem(Slot).Name + "_Icon";
-            EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
-            EquipmentIcon.transform.localScale = new Vector2(500, 500);
+        if (PC.GetInventoryItem(Slot)!=null) {
+            Equipment E = PC.GetInventoryItem(Slot);
+            EquipmentIcon = EquipmentController.ObtainInventoryIcon(E, transform);
         } else {
             DestroyObject(EquipmentIcon);
             EquipmentIcon = null;
+            foreach (Transform t in transform) {
+                if (t.gameObject.name != "StatsBG" && t.gameObject.name != "StatsText") {
+                    Destroy(t.gameObject);
+                }
+            }
         }
     }
 
     void InstantiateSlotImage() {
         if (PC.PlayerData.Inventory[Slot] != null) {
-            EquipmentIcon = Instantiate(Resources.Load("EquipmentIcons/" + PC.PlayerData.Inventory[Slot].Name + "_Icon"), transform) as GameObject;
-            EquipmentIcon.name = PC.PlayerData.Inventory[Slot].Name + "_Icon";
-            EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
-            EquipmentIcon.transform.localScale = new Vector2(500, 500);
+            Equipment E = PC.PlayerData.Inventory[Slot];
+            EquipmentIcon = EquipmentController.ObtainInventoryIcon(E, transform);
         }
     }
 

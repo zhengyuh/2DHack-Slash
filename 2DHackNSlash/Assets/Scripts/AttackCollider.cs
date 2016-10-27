@@ -15,10 +15,10 @@ public class AttackCollider : MonoBehaviour {
     BoxCollider2D WeaponCollider;
     PlayerController Player;
     void Start() {
-        WeaponAnim = this.GetComponent<Animator>();
+        WeaponAnim = transform.parent.GetComponent<Animator>();
         WeaponCollider = this.GetComponent<BoxCollider2D>();
-        if(transform.parent!=null)
-            Player = transform.parent.GetComponent<PlayerController>();
+        if(transform.parent.parent != null)
+            Player = transform.parent.parent.GetComponent<PlayerController>();
     }
 
     void Update() {
@@ -31,10 +31,10 @@ public class AttackCollider : MonoBehaviour {
             EnemyController Enemy = collider.GetComponent<EnemyController>();
             DMG dmg = Player.AutoAttackDamageDeal();
             Enemy.DeductHealth(dmg.Damage);
-            if(dmg.IsCrit)
+            if (dmg.IsCrit)
                 collider.GetComponent<Animator>().Play("Crit");
         }
-        if (collider.tag == "Player") {//PVP
+        if (collider.tag == "EnemyPlayer") {//PVP
 
         }
     }

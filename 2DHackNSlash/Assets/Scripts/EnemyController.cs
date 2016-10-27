@@ -201,7 +201,9 @@ public class EnemyController : MonoBehaviour {
     }
 
     void DieUpdate() {
-        if (CurrHealth <= 0) //Insert dead animation here
+        if (CurrHealth <= 0) {//Insert dead animation here
+            GetComponent<DropList>().SpawnLoots();
             Destroy(transform.parent.gameObject);
+        }
     }
 }

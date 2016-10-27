@@ -35,12 +35,9 @@ public class PlayerController : MonoBehaviour {
     public float CurrLPH;    
     public float CurrMPH;
 
+    public GameObject[] test;
 
-    GameObject HelmetPrefab;
-    GameObject ChestPrefab;
-    GameObject ShacklePrefab;
-    GameObject WeaponPrefab;
-    GameObject TrinketPrefab;
+    Dictionary<string, GameObject> EquipPrefabs;
 
     Rigidbody2D rb;
     private ControllerManager CM;
@@ -48,8 +45,11 @@ public class PlayerController : MonoBehaviour {
 
     private GameObject BaseModel;
 
+    private GameObject PickedTarget = null;
 
     void Awake() {
+        EquipPrefabs = new Dictionary<string, GameObject>();
+        rb = GetComponent<Rigidbody2D>();
         if (transform.parent.tag == "MainPlayer") {
             if (ControllerManager.Instance) {
                 CM = ControllerManager.Instance;
@@ -67,21 +67,63 @@ public class PlayerController : MonoBehaviour {
         InitPlayer();
     }
 
+    //void OnTriggerStay2D(Collider2D collider) {
+    //    if (collider.tag == "Lootable") {
+    //        transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(true);
+    //        if (Input.GetKeyDown(CM.Interact) || Input.GetKeyDown(CM.J_A)) {
+    //            if (InventoryIsFull()) {
+    //                Debug.Log("Your inventory is full!");
+    //            } else {
+    //                int InventoryIndex = FirstAvailbleInventorySlot();
+    //                AddToInventory(InventoryIndex, collider.transform.parent.GetComponent<EquipmentController>().E);
+    //                transform.Find("PlayerUI/CharacterSheet/InventoryButtons/" + InventoryIndex).GetComponent<InventoryButtonController>().UpdateSlot();
+    //                Destroy(collider.transform.parent.gameObject);
+    //            }
+    //        }
+    //    }
+    //}
+
+    void OnTriggerStay2D(Collider2D collider) {
+        if (collider.tag == "Lootable") {
+            PickedTarget = collider.transform.parent.gameObject;
+            return;
+        }
+    }
+    void PickUpInUpdate() {
+        if (PickedTarget != null) {
+            transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(true);
+            if (Input.GetKeyDown(CM.Interact) || Input.GetKeyDown(CM.J_A)) {
+                if (InventoryIsFull()) {
+                    Debug.Log("Your inventory is full!");
+                } else {
+                    int InventoryIndex = FirstAvailbleInventorySlot();                    
+                    Debug.Log(PickedTarget.GetComponent<EquipmentController>().E.Name);
+                    AddToInventory(InventoryIndex, PickedTarget.GetComponent<EquipmentController>().E);
+                    Destroy(PickedTarget);
+                    PickedTarget = null;
+                }
+            }
+        } else
+        transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(false);
+    }
+
+    void OnTriggerExit2D(Collider2D collider) {
+        if (collider.tag == "Lootable" && PickedTarget!=null) {
+            //transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(false);
+            PickedTarget = null;
+        }
+    }
+
     // Update is called once per frame
     void Update() {
-        BaseModelUodate();
-        HelmetUpdate();
-        ChestUpdate();
-        ShackleUpdate();
-        WeaponUpdate();
-        TrinketUpdate();
+        PickUpInUpdate();
+        EquiPrefabsUpdate();
+        BaseModelUpdate();
     }
 
     void FixedUpdate() {
          MoveUpdate();
     }
-
-
 
     //----------public
     //Stats Handling
@@ -109,7 +151,10 @@ public class PlayerController : MonoBehaviour {
         return MaxHealth;
     }
 
-    //Equipment Handling
+    //Equipment/Inventory Handling
+    public bool InventoryIsFull() {
+        return FirstAvailbleInventorySlot() == PlayerData.Inventory.Length;
+    }
     public Equipment GetEquippedItem(string Slot) {
         return PlayerData.Equipments[Slot];
     }
@@ -132,48 +177,15 @@ public class PlayerController : MonoBehaviour {
     }
 
     public void Equip(Equipment E) {
-        if (E.Type == "Helemt") {
-            HelmetPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), transform) as GameObject;
-            HelmetPrefab.name = E.Name;
-            HelmetPrefab.transform.position = transform.position + HelmetPrefab.transform.position;
-        } else if (E.Type == "Chest") {
-            ChestPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), transform) as GameObject;
-            ChestPrefab.name = E.Name;
-            ChestPrefab.transform.position = transform.position + ChestPrefab.transform.position;
-        } else if (E.Type == "Shackle") {
-            ShacklePrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), transform) as GameObject;
-            ShacklePrefab.name = E.Name;
-            ShacklePrefab.transform.position = transform.position + ShacklePrefab.transform.position;
-        } else if (E.Type == "Weapon") {
-            WeaponPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), transform) as GameObject;
-            WeaponPrefab.name = E.Name;
-            WeaponPrefab.transform.position = transform.position + WeaponPrefab.transform.position;
-        } else if (E.Type == "Trinket") {
-            TrinketPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), transform) as GameObject;
-            TrinketPrefab.name = E.Name;
-            TrinketPrefab.transform.position = transform.position + TrinketPrefab.transform.position;
-        }
         PlayerData.Equipments[E.Type] = E;
+        GameObject equipPrefab = EquipmentController.ObtainPrefab(E, transform);
+        EquipPrefabs[E.Type] = equipPrefab;
         UpdateStats();
         SLM.SaveCurrentPlayerInfo();
     }
 
     public void UnEquip(string Slot) {
-        if (Slot == "Helemt") {
-            Destroy(HelmetPrefab);
-        }
-        else if(Slot == "Chest") {
-            Destroy(ChestPrefab);
-        }
-        else if(Slot == "Shackle") {
-            Destroy(ShacklePrefab);
-        }
-        else if(Slot == "Weapon") {
-            Destroy(WeaponPrefab);
-        }
-        else if(Slot == "Trinket") {
-            Destroy(TrinketPrefab);
-        }
+        Destroy(EquipPrefabs[Slot]);
         PlayerData.Equipments[Slot] = null;
         UpdateStats();
         SLM.SaveCurrentPlayerInfo();
@@ -206,10 +218,7 @@ public class PlayerController : MonoBehaviour {
     //-------private
     void InitPlayer() {
         InstaniateEquipment();
-
         InitStats();
-
-        rb = GetComponent<Rigidbody2D>();
     }
 
     void InitStats() {
@@ -252,80 +261,27 @@ public class PlayerController : MonoBehaviour {
         CurrMPH = MaxMPH;
     }
 
-    void BaseModelUodate() {
+    void BaseModelUpdate() {
         Animator BaseModelAnim = BaseModel.GetComponent<Animator>();
         if (CM != null) {
-            BaseModelAnim.SetInteger("Direction", CM.GetDirection());
+            BaseModelAnim.SetInteger("Direction", CM.Direction);
             BaseModelAnim.speed = GetMovementAnimSpeed();
         }
     }
 
-    void HelmetUpdate() {
-        if (HelmetPrefab != null) {
-            Animator HelmetAnim = HelmetPrefab.GetComponent<Animator>();
-            if (CM != null) {
-                HelmetAnim.SetInteger("Direction", CM.GetDirection());
-                HelmetAnim.speed = GetMovementAnimSpeed();
+    void EquiPrefabsUpdate() {
+        if (CM != null) {
+            foreach(var e_prefab in EquipPrefabs.Values) {
+                if(e_prefab!=null)
+                    e_prefab.GetComponent<EquipmentController>().EquipUpdate(CM.Direction, CM.AttackVector);
             }
-        }
-    }
-
-    void ChestUpdate() {
-        if (ChestPrefab != null) {
-            Animator ChestAnim = ChestPrefab.GetComponent<Animator>();
-            if (CM != null) {
-                ChestAnim.SetInteger("Direction", CM.GetDirection());
-                ChestAnim.speed = GetMovementAnimSpeed();
-            }
-        }
-    }
-
-    void ShackleUpdate() {
-        if (ShacklePrefab != null) {
-            Animator ShackleAnim = ShacklePrefab.GetComponent<Animator>();
-            if (CM != null) {
-                ShackleAnim.SetInteger("Direction", CM.GetDirection());
-                ShackleAnim.speed = GetMovementAnimSpeed();
-            }
-        }
-    }
-
-    void TrinketUpdate() {//Disable for non-wing trinkets
-        //if (Trinket != null) {
-        //    Animator TrinketAnim = Trinket.GetComponent<Animator>();
-        //    if (CM != null) {
-        //        TrinketAnim.SetInteger("Direction", CM.GetDirection());
-        //        TrinketAnim.speed = GetPlayerMovementAnimSpeed();
-        //    }
-        //}
-    }
-
-    void WeaponUpdate() {
-        if (WeaponPrefab != null) {
-            Animator WeaponAnim = WeaponPrefab.GetComponent<Animator>();
-            if (CM != null) {
-                WeaponAnim.SetInteger("Direction", CM.GetDirection());
-                //WeaponAnim.speed = GetPlayerMovementAnimSpeed();
-                WeaponAnim.speed = GetAttackAnimSpeed();
-                if (CM.GetDirection() == 3)
-                    WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 0;
-                else
-                    WeaponPrefab.GetComponent<SpriteRenderer>().sortingOrder = 2;
-                if (CM.GetAttackVector() != Vector2.zero) {//Attack Update
-                    WeaponAnim.SetBool("IsAttacking", true);
-                    WeaponAnim.SetInteger("Direction", CM.GetDirection());
-                    WeaponAnim.speed = GetAttackAnimSpeed();
-                } else {
-                    WeaponAnim.SetBool("IsAttacking", false);
-                }
-            }
-        }
+        }      
     }
 
     void MoveUpdate() {
         if (CM != null) {
-            if (CM.GetMoveVector() != Vector2.zero) {
-                rb.MovePosition(rb.position + CM.GetMoveVector() * (CurrMoveSpd/100) * Time.deltaTime);
+            if (CM.MoveVector != Vector2.zero) {
+                rb.MovePosition(rb.position + CM.MoveVector * (CurrMoveSpd/100) * Time.deltaTime);
             }
         }
     }
@@ -386,24 +342,8 @@ public class PlayerController : MonoBehaviour {
         }
         foreach(var e in PlayerData.Equipments) {
             if (e.Value != null) {
-                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + e.Value.Name), transform) as GameObject;
-                equipPrefab.name = e.Value.Name;
-                equipPrefab.transform.position = transform.position + equipPrefab.transform.position;
-                if (e.Key == "Helmet") {
-                    HelmetPrefab = equipPrefab;
-                }
-                else if(e.Key == "Chest") {
-                    ChestPrefab = equipPrefab;
-                }
-                else if(e.Key == "Shackle") {
-                    ShacklePrefab = equipPrefab;
-                }
-                else if(e.Key == "Weapon") {
-                    WeaponPrefab = equipPrefab;
-                }
-                 else if(e.Key == "Trinket") {
-                    TrinketPrefab = equipPrefab;
-                }
+                GameObject equipPrefab = EquipmentController.ObtainPrefab(e.Value, transform);
+                EquipPrefabs[e.Key] = equipPrefab;
             }
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class EquippedButtonController : MonoBehaviour {
     PlayerController PC;
-    public GameObject EquipmentIcon;
+    GameObject EquipmentIcon;
     private string Slot;
 
     GameObject ES;
@@ -33,8 +33,8 @@ public class EquippedButtonController : MonoBehaviour {
 	}
 
     public void OnClickUnEquip() {
-        if (PC.GetEquippedItem(Slot)) {
-            if (PC.FirstAvailbleInventorySlot()==PC.PlayerData.Inventory.Length) {//Inventory Full
+        if (PC.GetEquippedItem(Slot)!=null) {
+            if (PC.InventoryIsFull()) {//Inventory Full
                 Debug.Log("Your inventory is full!");
                 return;
             } else {
@@ -48,21 +48,24 @@ public class EquippedButtonController : MonoBehaviour {
         }
     }
     public void UpdateSlot() {
-        if (PC.GetEquippedItem(Slot)) {
-            EquipmentIcon = Instantiate(Resources.Load("EquipmentIcons/" + PC.GetEquippedItem(Slot).Name + "_Icon"), transform) as GameObject;
-            EquipmentIcon.name = PC.GetEquippedItem(Slot).Name + "_Icon";
-            EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
+        if (PC.GetEquippedItem(Slot) != null) {
+            Equipment E = PC.PlayerData.Equipments[Slot];
+            EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
         } else {
             DestroyObject(EquipmentIcon);
             EquipmentIcon = null;
+            foreach(Transform t in transform) {
+                if(t.gameObject.name!="StatsBG" && t.gameObject.name != "StatsText") {
+                    Destroy(t.gameObject);
+                }
+            }
         }
     }
 
     void InstantiateSlotImage() {
         if (PC.PlayerData.Equipments[Slot] != null) {
-            EquipmentIcon = Instantiate(Resources.Load("EquipmentIcons/" + PC.PlayerData.Equipments[Slot].Name + "_Icon"),transform) as GameObject;
-            EquipmentIcon.name = PC.PlayerData.Equipments[Slot].Name + "_Icon";
-            EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
+            Equipment E = PC.PlayerData.Equipments[Slot];
+            EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
         }
     }
 

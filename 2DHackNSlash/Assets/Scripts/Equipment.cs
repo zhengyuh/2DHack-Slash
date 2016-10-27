@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class Equipment :ScriptableObject{
+public class Equipment :System.Object{
     //public int Rarity = 0;
     //public string Name = "null";
     //public string Class = "null";//For non-trinket equipment only
@@ -37,19 +37,4 @@ public class Equipment :ScriptableObject{
     public int Reroll = 0; //NumofTime been rerolled
     public int Reforged = 0; //NumofTime been reforged
 
-    public void ApplyAttribute(CharacterDataStruct PlayerAttributes) {
-        PlayerAttributes.BaseHealth += AddHealth;
-        PlayerAttributes.BaseMana += AddMana;
-        PlayerAttributes.BaseAD += AddAD;
-        PlayerAttributes.BaseMD += AddMD;
-        PlayerAttributes.BaseAttkSpd += AddAttkSpd;
-        PlayerAttributes.BaseMoveSpd += AddMoveSpd;
-        PlayerAttributes.BaseDefense += AddDefense;
-
-        PlayerAttributes.BaseCritChance += AddCritChance;
-        PlayerAttributes.BaseCritDmgBounus += AddCritDmgBounus;
-
-        PlayerAttributes.BaseLPH += AddLPH;
-        PlayerAttributes.BaseMPH += AddMPH;
-    }
 }

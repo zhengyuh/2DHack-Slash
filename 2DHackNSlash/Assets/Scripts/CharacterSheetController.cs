@@ -76,6 +76,7 @@ public class CharacterSheetController : MonoBehaviour
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(null);
         GameObject FBO = GameObject.Find("MainPlayer/PlayerController/PlayerUI/CharacterSheet/InventoryButtons/0").gameObject;
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(FBO);
+        UpdateInventoryButtons();
     }
 
     public void TurnOff() {
@@ -84,6 +85,12 @@ public class CharacterSheetController : MonoBehaviour
 
     public bool IsOn() {
         return gameObject.active;
+    }
+
+    void UpdateInventoryButtons() {
+        foreach (Transform t in transform.Find("InventoryButtons").transform) {
+            t.GetComponent<InventoryButtonController>().UpdateSlot();
+        }
     }
 
     void UpdateCharacterSheetUI()

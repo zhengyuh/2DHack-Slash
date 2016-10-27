@@ -104,9 +104,7 @@ public class SlotController : MonoBehaviour {
         }
         foreach (var e in PlayerData.Equipments) {
             if (e.Value != null) {
-                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + e.Value.Name), transform) as GameObject;
-                equipPrefab.name = e.Value.Name;
-                equipPrefab.transform.position = transform.position + equipPrefab.transform.position;
+                GameObject equipPrefab = EquipmentController.ObtainPrefab(e.Value, transform);
             }
         }
     }
