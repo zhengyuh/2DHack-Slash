@@ -13,6 +13,8 @@ public class EquippedButtonController : MonoBehaviour {
     Text StatsText;
     Image StatsBG;
 
+    Equipment E = null;
+
     // Use this for initialization
     void Awake() {
         PC = GameObject.Find("MainPlayer/PlayerController").transform.GetComponent<PlayerController>();
@@ -24,12 +26,12 @@ public class EquippedButtonController : MonoBehaviour {
     }
 
 	void Start () {
-        InstantiateSlotImage();
     }
 	
 	// Update is called once per frame
 	void Update () {
         UpdateStats();
+        UpdateSlot();
 	}
 
     public void OnClickUnEquip() {
@@ -38,40 +40,30 @@ public class EquippedButtonController : MonoBehaviour {
                 Debug.Log("Your inventory is full!");
                 return;
             } else {
-                Equipment E = PC.GetEquippedItem(Slot);
                 int SlotIndex = PC.FirstAvailbleInventorySlot();
                 PC.AddToInventory(SlotIndex, E);
                 PC.UnEquip(Slot);
-                UpdateSlot();
-                InventoryButtons.transform.Find(SlotIndex.ToString()).GetComponent<InventoryButtonController>().UpdateSlot();
             }
         }
     }
     public void UpdateSlot() {
-        if (PC.GetEquippedItem(Slot) != null) {
-            Equipment E = PC.PlayerData.Equipments[Slot];
-            EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
+        if (PC.GetEquippedItem(Slot) == E) {
+            return;
         } else {
-            DestroyObject(EquipmentIcon);
-            EquipmentIcon = null;
-            foreach(Transform t in transform) {
-                if(t.gameObject.name!="StatsBG" && t.gameObject.name != "StatsText") {
-                    Destroy(t.gameObject);
-                }
+            E = PC.GetEquippedItem(Slot);
+            if (E != null) {
+                if(EquipmentIcon!=null)
+                    DestroyObject(EquipmentIcon);
+                EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
+            } else {
+                DestroyObject(EquipmentIcon);
+                EquipmentIcon = null;
             }
         }
     }
 
-    void InstantiateSlotImage() {
-        if (PC.PlayerData.Equipments[Slot] != null) {
-            Equipment E = PC.PlayerData.Equipments[Slot];
-            EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
-        }
-    }
-
     void UpdateStats() {
-        if (EquipmentIcon && ES.GetComponent<UnityEngine.EventSystems.EventSystem>().currentSelectedGameObject == gameObject) {
-            Equipment E = PC.PlayerData.Equipments[Slot];
+        if (E !=null && ES.GetComponent<UnityEngine.EventSystems.EventSystem>().currentSelectedGameObject == gameObject) {
             StatsText.gameObject.SetActive(true);
             StatsBG.gameObject.SetActive(true);
             switch (E.Rarity) {

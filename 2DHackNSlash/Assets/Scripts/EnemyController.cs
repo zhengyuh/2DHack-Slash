@@ -75,6 +75,7 @@ public class EnemyController : MonoBehaviour {
         LockOnClosestTarget();
         DiscardTarget();
 
+        AttackVectorUpdate();
         MoveVectorUpdate();
         DirectionUpdate();
 
@@ -126,14 +127,28 @@ public class EnemyController : MonoBehaviour {
             float dist = Vector2.Distance(Target.transform.position, transform.position);
             if (dist > AttackDistance) {
                 MoveVector = (Vector2)Vector3.Normalize(Target.transform.position - transform.position);
-            } else
+            }else {
                 MoveVector = Vector2.zero;
+            }
         } else {
             MoveVector = Vector2.zero;
         }
     }
+
+    void AttackVectorUpdate() {
+        if(Target != null) {
+            float dist = Vector2.Distance(Target.transform.position, transform.position);
+            if (dist <= AttackDistance) {
+                AttackVector = (Vector2)Vector3.Normalize(Target.transform.position - transform.position);
+            } else {
+                AttackVector = Vector2.zero;
+            }
+        } else {
+            AttackVector = Vector2.zero;
+        }
+    }
     void DirectionUpdate() {
-        if (MoveVector != Vector2.zero) {
+        if (MoveVector != Vector2.zero && AttackVector == Vector2.zero) {
             if (Vector2.Angle(MoveVector, Vector2.right) <= 45) {//Right
                 Direction = 2;
             } else if (Vector2.Angle(MoveVector, Vector2.up) <= 45) {//Up
@@ -141,6 +156,17 @@ public class EnemyController : MonoBehaviour {
             }else if (Vector2.Angle(MoveVector, Vector2.left) <= 45) {//Left
                 Direction = 1;
             } else if (Vector2.Angle(MoveVector, Vector2.down) <= 45) {//Down
+                Direction = 0;
+            }
+        }
+        else if(AttackVector != Vector2.zero) {
+            if (Vector2.Angle(AttackVector, Vector2.right) <= 45) {//Right
+                Direction = 2;
+            } else if (Vector2.Angle(AttackVector, Vector2.up) <= 45) {//Up
+                Direction = 3;
+            } else if (Vector2.Angle(AttackVector, Vector2.left) <= 45) {//Left
+                Direction = 1;
+            } else if (Vector2.Angle(AttackVector, Vector2.down) <= 45) {//Down
                 Direction = 0;
             }
         }
@@ -152,12 +178,21 @@ public class EnemyController : MonoBehaviour {
     }
 
     void AnimUpdate() {
-        if (MoveVector != Vector2.zero) {
+        if (MoveVector != Vector2.zero && AttackVector == Vector2.zero) {
+            Anim.speed = GetMovementAnimSpeed();
+            Anim.SetBool("IsAttacking", false);
             Anim.SetBool("IsMoving", true);
             Anim.SetInteger("Direction", Direction);
-            Anim.speed = GetMovementAnimSpeed();
-        } else {
+        }
+        else if(AttackVector != Vector2.zero) {
+            Anim.speed = GetAttackAnimSpeed();
             Anim.SetBool("IsMoving", false);
+            Anim.SetBool("IsAttacking", true);
+            Anim.SetInteger("Direction", Direction);
+        }
+        else {
+            Anim.SetBool("IsMoving", false);
+            Anim.SetBool("IsAttacking", false);
         }
     }
 

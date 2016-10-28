@@ -51,9 +51,6 @@ public class CharacterSheetController : MonoBehaviour
 
 	void Update ()
 	{
-        //detect changes in character, maybe something like:
-        // if(PlayerRef.GetComponent <PlayerController> ().WasChange)
-        //Need to set it to false when done updating
         if (IsOn()) {
             UpdateCharacterSheetUI();
             Vector3 Mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -76,7 +73,6 @@ public class CharacterSheetController : MonoBehaviour
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(null);
         GameObject FBO = GameObject.Find("MainPlayer/PlayerController/PlayerUI/CharacterSheet/InventoryButtons/0").gameObject;
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(FBO);
-        UpdateInventoryButtons();
     }
 
     public void TurnOff() {
@@ -85,12 +81,6 @@ public class CharacterSheetController : MonoBehaviour
 
     public bool IsOn() {
         return gameObject.active;
-    }
-
-    void UpdateInventoryButtons() {
-        foreach (Transform t in transform.Find("InventoryButtons").transform) {
-            t.GetComponent<InventoryButtonController>().UpdateSlot();
-        }
     }
 
     void UpdateCharacterSheetUI()

@@ -78,9 +78,19 @@ public class EquipmentController : MonoBehaviour {
         InstantiateEquipmentData();
         GameObject Loot = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), T.position,T.rotation) as GameObject;
         Loot.name = E.Name;
+        GameObject[] PlayerList = GameObject.FindGameObjectsWithTag("Player");
+        GameObject[] EnemyList = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject player in PlayerList) {
+            Physics2D.IgnoreCollision(player.transform.GetComponent<Collider2D>(), Loot.transform.GetComponent<Collider2D>());
+        }
+        foreach (GameObject enemy in EnemyList) {
+            Physics2D.IgnoreCollision(enemy.transform.GetComponent<Collider2D>(), Loot.transform.GetComponent<Collider2D>());
+        }
         Destroy(Loot.transform.Find("Icon").gameObject);
         Loot.transform.Find("LootBox").gameObject.SetActive(true);
         Loot.GetComponent<EquipmentController>().LootRandomlize();
+        Loot.GetComponent<SpriteRenderer>().sortingOrder = 0; //Subject to change
+        Loot.GetComponent<BoxCollider2D>().enabled = true;
         Text E_NameText = Loot.transform.Find("LootBox/UI/Name").GetComponent<Text>();
         switch (E.Rarity) {
             case 0: //Common

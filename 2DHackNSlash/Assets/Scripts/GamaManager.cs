@@ -74,6 +74,11 @@ public class GamaManager : MonoBehaviour {
             if (MC.IsOn())
                 MC.TurnOff();
             CSC.Toggle();
+        } else if (Input.GetKeyDown(CM.J_B)) {
+            if (CSC.IsOn())
+                CSC.TurnOff();
+            if (MC.IsOn())
+                MC.TurnOff();
         }
     }
 }

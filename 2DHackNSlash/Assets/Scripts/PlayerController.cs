@@ -67,22 +67,6 @@ public class PlayerController : MonoBehaviour {
         InitPlayer();
     }
 
-    //void OnTriggerStay2D(Collider2D collider) {
-    //    if (collider.tag == "Lootable") {
-    //        transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(true);
-    //        if (Input.GetKeyDown(CM.Interact) || Input.GetKeyDown(CM.J_A)) {
-    //            if (InventoryIsFull()) {
-    //                Debug.Log("Your inventory is full!");
-    //            } else {
-    //                int InventoryIndex = FirstAvailbleInventorySlot();
-    //                AddToInventory(InventoryIndex, collider.transform.parent.GetComponent<EquipmentController>().E);
-    //                transform.Find("PlayerUI/CharacterSheet/InventoryButtons/" + InventoryIndex).GetComponent<InventoryButtonController>().UpdateSlot();
-    //                Destroy(collider.transform.parent.gameObject);
-    //            }
-    //        }
-    //    }
-    //}
-
     void OnTriggerStay2D(Collider2D collider) {
         if (collider.tag == "Lootable") {
             PickedTarget = collider.transform.parent.gameObject;
@@ -90,14 +74,13 @@ public class PlayerController : MonoBehaviour {
         }
     }
     void PickUpInUpdate() {
-        if (PickedTarget != null) {
+        if (PickedTarget != null && CM.AllowControlUpdate) {
             transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(true);
             if (Input.GetKeyDown(CM.Interact) || Input.GetKeyDown(CM.J_A)) {
                 if (InventoryIsFull()) {
                     Debug.Log("Your inventory is full!");
                 } else {
                     int InventoryIndex = FirstAvailbleInventorySlot();                    
-                    Debug.Log(PickedTarget.GetComponent<EquipmentController>().E.Name);
                     AddToInventory(InventoryIndex, PickedTarget.GetComponent<EquipmentController>().E);
                     Destroy(PickedTarget);
                     PickedTarget = null;
@@ -127,8 +110,8 @@ public class PlayerController : MonoBehaviour {
 
     //----------public
     //Stats Handling
-    public float GetAttackCD() {
-        return attack_animation_interval/(CurrAttSpd/100) * 0.5f;
+    public float GetAttackCD(float ClipLength) {
+        return attack_animation_interval/(CurrAttSpd/100) * ClipLength;
     }
 
     public float GetMovementAnimSpeed() {
