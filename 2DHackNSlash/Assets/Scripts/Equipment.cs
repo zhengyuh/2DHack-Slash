@@ -34,7 +34,7 @@ public class Equipment :System.Object{
     public float AddLPH;
     public float AddMPH;
 
-    public int Reroll = 0; //NumofTime been rerolled
-    public int Reforged = 0; //NumofTime been reforged
+    public int Reroll; //NumofTime been rerolled
+    public int Reforged; //NumofTime been reforged
 
 }

@@ -15,26 +15,37 @@ public class EnemyController : MonoBehaviour {
     public float MaxMana;
     public float MaxAD;
     public float MaxMD;
-    public float MaxAttkSpd;
-    public float MaxMoveSpd;
-    public float MaxDefense;
+    public float MaxAttkSpd; //Percantage
+    public float MaxMoveSpd; //Percantage
+    public float MaxDefense; //Percantage
 
     public float MaxCritChance = 0.3f; //Percantage
     public float MaxCritDmgBounus = 1f; //Percantage
     public float MaxLPH;
     public float MaxMPH;
 
-    private float CurrHealth;
-    private float CurrMana;
-    private float CurrAD;
-    private float CurrMD;
-    private float CurrAttSpd;
-    private float CurrMoveSpd;
-    private float CurrDefense;
-    private float CurrCritChance;
-    private float CurrCritDmgBounus;
-    private float CurrLPH;
-    private float CurrMPH;
+    [HideInInspector]
+    public float CurrHealth;
+    [HideInInspector]
+    public float CurrMana;
+    [HideInInspector]
+    public float CurrAD;
+    [HideInInspector]
+    public float CurrMD;
+    [HideInInspector]
+    public float CurrAttSpd;
+    [HideInInspector]
+    public float CurrMoveSpd;
+    [HideInInspector]
+    public float CurrDefense;
+    [HideInInspector]
+    public float CurrCritChance;
+    [HideInInspector]
+    public float CurrCritDmgBounus;
+    [HideInInspector]
+    public float CurrLPH;
+    [HideInInspector]
+    public float CurrMPH;
 
     List<GameObject> TargetList;
     GameObject Target;
@@ -45,9 +56,12 @@ public class EnemyController : MonoBehaviour {
     private int Direction;
     private Animator Anim;
 
+    [HideInInspector]
+    public bool Attacking = false;
+
     void Awake() {
         TargetList = new List<GameObject>();
-        rb = this.GetComponent<Rigidbody2D>();
+        rb = transform.parent.GetComponent<Rigidbody2D>();
         Anim = this.GetComponent<Animator>();
     }
     // Use this for initialization
@@ -69,8 +83,6 @@ public class EnemyController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        RbUpdate();
-
         SearchTarget();
         LockOnClosestTarget();
         DiscardTarget();
@@ -82,7 +94,6 @@ public class EnemyController : MonoBehaviour {
         AnimUpdate();
 
         DieUpdate();
-        //print(Vector2.Angle(MoveVector, Vector2.up));
     }
 
     void FixedUpdate() {
@@ -91,26 +102,39 @@ public class EnemyController : MonoBehaviour {
 
     //----------public
 
-    public string GetName() {
-        return Name;
+    //Combat
+    public DMG AutoAttackDamageDeal(float TargetDefense) {
+        DMG dmg;
+        if (Random.value < (CurrCritChance / 100)) {
+            dmg.Damage = CurrAD + CurrAD * (CurrCritDmgBounus / 100) + CurrMD + CurrMD * (CurrCritDmgBounus / 100);
+            dmg.IsCrit = true;
+        } else {
+            dmg.Damage = CurrAD + CurrMD;
+            dmg.IsCrit = false;
+        }
+        float reduced_dmg = dmg.Damage * (TargetDefense / 100);
+        dmg.Damage = dmg.Damage - reduced_dmg;
+        GenerateLPHMPH();
+        return dmg;
     }
 
-    public float GetCurrentHealth() {
-        return CurrHealth;
+    public void GenerateLPHMPH() {
+        if (CurrHealth < MaxHealth && CurrHealth + CurrLPH <= MaxHealth)
+            CurrHealth += CurrLPH;
+        else
+            CurrHealth = MaxHealth;
+        if (CurrMana < MaxMana && CurrMana + CurrMPH <= MaxMana)
+            CurrMana += CurrMPH;
+        else
+            CurrMana = MaxMana;
     }
 
-    public float GetMaxHealth() {
-        return MaxHealth;
+    public void DeductHealth(DMG dmg) {
+        CurrHealth -= dmg.Damage;
     }
 
-    public void DeductHealth(float dmg) {//Method for collider
-        CurrHealth -= dmg;//Update CurrentHealth
-    }
 
-    public float GetAttackCD() {
-        return attack_animation_interval / (CurrAttSpd/100) * 0.5f;
-    }
-
+    //Animation
     public float GetMovementAnimSpeed() {
         return (CurrMoveSpd/100) / (movement_animation_interval);
     }
@@ -119,6 +143,23 @@ public class EnemyController : MonoBehaviour {
         return (CurrAttSpd/100) / (attack_animation_interval);
     }
 
+    public float GetPhysicsSpeedFactor() {
+        if (!Attacking) {
+            if (CurrMoveSpd < 100)
+                return 1 + CurrMoveSpd / 100;
+            else if (CurrMoveSpd > 100)
+                return 1 - CurrMoveSpd / 100;
+            else
+                return 1;
+        } else {
+            if (CurrAttSpd < 100)
+                return 1 + CurrAttSpd / 100;
+            else if (CurrMoveSpd > 100)
+                return 1 - CurrAttSpd / 100;
+            else
+                return 1;
+        }
+    }
 
 
     //-------private
@@ -127,6 +168,7 @@ public class EnemyController : MonoBehaviour {
             float dist = Vector2.Distance(Target.transform.position, transform.position);
             if (dist > AttackDistance) {
                 MoveVector = (Vector2)Vector3.Normalize(Target.transform.position - transform.position);
+                AttackVector = Vector2.zero;
             }else {
                 MoveVector = Vector2.zero;
             }
@@ -140,6 +182,7 @@ public class EnemyController : MonoBehaviour {
             float dist = Vector2.Distance(Target.transform.position, transform.position);
             if (dist <= AttackDistance) {
                 AttackVector = (Vector2)Vector3.Normalize(Target.transform.position - transform.position);
+                MoveVector = Vector2.zero;
             } else {
                 AttackVector = Vector2.zero;
             }
@@ -178,17 +221,20 @@ public class EnemyController : MonoBehaviour {
     }
 
     void AnimUpdate() {
-        if (MoveVector != Vector2.zero && AttackVector == Vector2.zero) {
-            Anim.speed = GetMovementAnimSpeed();
-            Anim.SetBool("IsAttacking", false);
-            Anim.SetBool("IsMoving", true);
-            Anim.SetInteger("Direction", Direction);
-        }
-        else if(AttackVector != Vector2.zero) {
+        if (Attacking) {
             Anim.speed = GetAttackAnimSpeed();
-            Anim.SetBool("IsMoving", false);
+        } else {
+            Anim.speed = GetMovementAnimSpeed();
+        }
+        if (AttackVector != Vector2.zero) {
             Anim.SetBool("IsAttacking", true);
             Anim.SetInteger("Direction", Direction);
+            Anim.SetBool("IsMoving", false);
+        }
+        else if (MoveVector != Vector2.zero && AttackVector == Vector2.zero) {
+            Anim.SetBool("IsMoving", true);
+            Anim.SetInteger("Direction", Direction);
+            Anim.SetBool("IsAttacking", false);
         }
         else {
             Anim.SetBool("IsMoving", false);
@@ -200,16 +246,18 @@ public class EnemyController : MonoBehaviour {
         if (Target == null)
             return;
         float dist = Vector3.Distance(Target.transform.position, transform.position);
-        if (dist <= AttackDistance)
-            rb.isKinematic = true;
-        else
-            rb.isKinematic = false;
+        //if (dist <= AttackDistance)
+        //    rb.isKinematic = true;
+        //else
+        //    rb.isKinematic = false;
     }
 
     void SearchTarget() {
-        foreach (var Player in GameObject.FindGameObjectsWithTag("Player")) {
-            if (Vector2.Distance(transform.position, Player.transform.position)<=DetectionRange && !TargetList.Contains(Player)) {
-                TargetList.Add(Player);
+        if (Target == null) {
+            foreach (var Player in GameObject.FindGameObjectsWithTag("Player")) {
+                if (Vector2.Distance(transform.position, Player.transform.position) <= DetectionRange && !TargetList.Contains(Player)) {
+                    TargetList.Add(Player);
+                }
             }
         }
     }

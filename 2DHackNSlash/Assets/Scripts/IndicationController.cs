@@ -10,7 +10,7 @@ public class IndicationController : MonoBehaviour {
     // Use this for initialization
     void Start() {
         ParentTransform = transform.parent;
-        HealthMask = transform.Find("Health Bar").Find("Mask");
+        HealthMask = transform.Find("Health Bar/Mask");
         Name = transform.Find("Name").GetComponent<Text>();
         Name.text = GetDisaplyName();
     }
@@ -24,22 +24,25 @@ public class IndicationController : MonoBehaviour {
         float CurrHealth;
         float MaxHealth;
         if (ParentTransform.tag == "Player") {
-            CurrHealth = ParentTransform.GetComponent<PlayerController>().GetCurrentHealth();
-            MaxHealth = ParentTransform.GetComponent<PlayerController>().GetMaxHealth();
+            CurrHealth = ParentTransform.GetComponent<PlayerController>().CurrHealth;
+            MaxHealth = ParentTransform.GetComponent<PlayerController>().MaxHealth;
         } else if (ParentTransform.tag == "Enemy") {
-            CurrHealth = ParentTransform.GetComponent<EnemyController>().GetCurrentHealth();
-            MaxHealth = ParentTransform.GetComponent<EnemyController>().GetMaxHealth();
+            CurrHealth = ParentTransform.GetComponent<EnemyController>().CurrHealth;
+            MaxHealth = ParentTransform.GetComponent<EnemyController>().MaxHealth;
         } else {
             return;
         }
-        HealthMask.transform.localScale = new Vector2(CurrHealth / MaxHealth, 1);//Moving mask
+        if(CurrHealth / MaxHealth>=0)
+            HealthMask.transform.localScale = new Vector2(CurrHealth / MaxHealth, 1);//Moving mask
+        else
+            HealthMask.transform.localScale = new Vector2(0, 1);//Moving mask
     }
 
     string GetDisaplyName() {
         if (ParentTransform.tag == "Player") {
-            return ParentTransform.GetComponent<PlayerController>().GetName();
+            return ParentTransform.GetComponent<PlayerController>().Name;
         } else if (ParentTransform.tag == "Enemy") {
-            return ParentTransform.GetComponent<EnemyController>().GetName();
+            return ParentTransform.GetComponent<EnemyController>().Name;
         }
         return "";
     }

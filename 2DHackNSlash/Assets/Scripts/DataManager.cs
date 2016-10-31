@@ -58,7 +58,6 @@ public static class DataManager{
     }
 
     public static CharacterDataStruct LoadCharacter(int SlotIndex) {
-        Load();
         return CharacterData[SlotIndex];
     }
 

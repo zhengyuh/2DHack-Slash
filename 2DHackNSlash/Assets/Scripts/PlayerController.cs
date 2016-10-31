@@ -9,18 +9,32 @@ public class PlayerController : MonoBehaviour {
     [HideInInspector]
     public CharacterDataStruct PlayerData;
 
-    float MaxHealth;
-    float MaxMana;
-    float MaxAD;
-    float MaxMD;
-    float MaxAttkSpd;
-    float MaxMoveSpd;
-    float MaxDefense;
+    [HideInInspector]
+    public string Name;
 
-    float MaxCritChance; //Percantage
-    float MaxCritDmgBounus; //Percantage
-    float MaxLPH;
-    float MaxMPH;
+    [HideInInspector]
+    public float MaxHealth;
+    [HideInInspector]
+    public float MaxMana;
+    [HideInInspector]
+    public float MaxAD;
+    [HideInInspector]
+    public float MaxMD;
+    [HideInInspector]
+    public float MaxAttkSpd;
+    [HideInInspector]
+    public float MaxMoveSpd;
+    [HideInInspector]
+    public float MaxDefense;
+
+    [HideInInspector]
+    public float MaxCritChance; //Percantage
+    [HideInInspector]
+    public float MaxCritDmgBounus; //Percantage
+    [HideInInspector]
+    public float MaxLPH;
+    [HideInInspector]
+    public float MaxMPH;
 
 
     public float CurrHealth;
@@ -35,8 +49,6 @@ public class PlayerController : MonoBehaviour {
     public float CurrLPH;    
     public float CurrMPH;
 
-    public GameObject[] test;
-
     Dictionary<string, GameObject> EquipPrefabs;
 
     Rigidbody2D rb;
@@ -47,9 +59,19 @@ public class PlayerController : MonoBehaviour {
 
     private GameObject PickedTarget = null;
 
+    public GameObject FirstWeapon;
+
+    [HideInInspector]
+    public bool Attacking = false;
+
+    //[HideInInspector]
+    //public bool Alive = false;
+
     void Awake() {
+        if(FirstWeapon!=null)
+            FirstWeapon.GetComponent<EquipmentController>().InstantiateLoot(transform);
         EquipPrefabs = new Dictionary<string, GameObject>();
-        rb = GetComponent<Rigidbody2D>();
+        rb = transform.parent.GetComponent<Rigidbody2D>();
         if (transform.parent.tag == "MainPlayer") {
             if (ControllerManager.Instance) {
                 CM = ControllerManager.Instance;
@@ -73,22 +95,6 @@ public class PlayerController : MonoBehaviour {
             return;
         }
     }
-    void PickUpInUpdate() {
-        if (PickedTarget != null && CM.AllowControlUpdate) {
-            transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(true);
-            if (Input.GetKeyDown(CM.Interact) || Input.GetKeyDown(CM.J_A)) {
-                if (InventoryIsFull()) {
-                    Debug.Log("Your inventory is full!");
-                } else {
-                    int InventoryIndex = FirstAvailbleInventorySlot();                    
-                    AddToInventory(InventoryIndex, PickedTarget.GetComponent<EquipmentController>().E);
-                    Destroy(PickedTarget);
-                    PickedTarget = null;
-                }
-            }
-        } else
-        transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(false);
-    }
 
     void OnTriggerExit2D(Collider2D collider) {
         if (collider.tag == "Lootable" && PickedTarget!=null) {
@@ -102,6 +108,7 @@ public class PlayerController : MonoBehaviour {
         PickUpInUpdate();
         EquiPrefabsUpdate();
         BaseModelUpdate();
+        DieUpdate();
     }
 
     void FixedUpdate() {
@@ -109,11 +116,47 @@ public class PlayerController : MonoBehaviour {
     }
 
     //----------public
-    //Stats Handling
-    public float GetAttackCD(float ClipLength) {
-        return attack_animation_interval/(CurrAttSpd/100) * ClipLength;
+    
+
+    //Combat Methods
+    public DMG AutoAttackDamageDeal(float TargetDefense) {
+        DMG dmg;
+        if (Random.value < (CurrCritChance / 100)) {
+            dmg.Damage = CurrAD + CurrAD * (CurrCritDmgBounus / 100) + CurrMD + CurrMD * (CurrCritDmgBounus / 100);
+            dmg.IsCrit = true;
+        } else {
+            dmg.Damage = CurrAD + CurrMD;
+            dmg.IsCrit = false;
+        }
+        float reduced_dmg = dmg.Damage * (TargetDefense / 100);
+        dmg.Damage = dmg.Damage - reduced_dmg;
+        GenerateLPHMPH();
+        return dmg;
     }
 
+    public void GenerateLPHMPH() {
+        if (CurrHealth < MaxHealth && CurrHealth + CurrLPH <= MaxHealth)
+            CurrHealth += CurrLPH;
+        else
+            CurrHealth = MaxHealth;
+        if (CurrMana < MaxMana && CurrMana + CurrMPH <= MaxMana)
+            CurrMana += CurrMPH;
+        else
+            CurrMana = MaxMana;
+    }
+
+    public void DeductHealth(DMG dmg) {
+        CurrHealth -= dmg.Damage;
+    }
+
+    void DieUpdate() {
+        if (CurrHealth <= 0) {//Insert dead animation here
+            //GetComponent<DropList>().SpawnLoots(); //Added for PVP later
+            Destroy(gameObject);
+        }
+    }
+
+    //Animation Handling
     public float GetMovementAnimSpeed() {
         return (CurrMoveSpd/100) / (movement_animation_interval);
     }
@@ -122,16 +165,22 @@ public class PlayerController : MonoBehaviour {
         return (CurrAttSpd/100) / (attack_animation_interval);
     }
 
-    public string GetName() {
-        return PlayerData.Name;
-    }
-
-    public float GetCurrentHealth() {
-        return CurrHealth;
-    }
-
-    public float GetMaxHealth() {
-        return MaxHealth;
+    public float GetPhysicsSpeedFactor() {
+        if (!Attacking) {
+            if (CurrMoveSpd < 100)
+                return 1 + CurrMoveSpd / 100;
+            else if (CurrMoveSpd > 100)
+                return 1 - CurrMoveSpd / 100;
+            else
+                return 1;
+        } else {
+            if (CurrAttSpd < 100)
+                return 1 + CurrAttSpd / 100;
+            else if (CurrMoveSpd > 100)
+                return 1 - CurrAttSpd / 100;
+            else
+                return 1;
+        }
     }
 
     //Equipment/Inventory Handling
@@ -146,6 +195,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     public bool Compatible(Equipment E) {
+        if (E == null)
+            return false;
         if (E.Class == "All")//Trinket
             return PlayerData.lvl >= E.LvlReq;
         return (PlayerData.lvl >= E.LvlReq && PlayerData.Class == E.Class);
@@ -184,20 +235,6 @@ public class PlayerController : MonoBehaviour {
         SLM.SaveCurrentPlayerInfo();
     }
 
-    //Attack Handling
-    public DMG AutoAttackDamageDeal() {//Subject to change for classes scale with AP
-        DMG dmg;
-        if (Random.value < (CurrCritChance/100)) {
-            dmg.Damage = CurrAD + CurrAD * (CurrCritDmgBounus/100);
-            dmg.IsCrit = true;
-        }
-        else {
-            dmg.Damage = CurrAD;
-            dmg.IsCrit = false;
-        }
-        return dmg;
-    }
-
     //-------private
     void InitPlayer() {
         InstaniateEquipment();
@@ -205,6 +242,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     void InitStats() {
+        Name = PlayerData.Name;
+
         MaxHealth = PlayerData.BaseHealth;
         MaxMana = PlayerData.BaseMana;
         MaxAD = PlayerData.BaseAD;
@@ -329,5 +368,22 @@ public class PlayerController : MonoBehaviour {
                 EquipPrefabs[e.Key] = equipPrefab;
             }
         }
+    }
+
+    void PickUpInUpdate() {
+        if (PickedTarget != null && CM.AllowControlUpdate) {
+            transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(true);
+            if (Input.GetKeyDown(CM.Interact) || Input.GetKeyDown(CM.J_A)) {
+                if (InventoryIsFull()) {
+                    Debug.Log("Your inventory is full!");
+                } else {
+                    int InventoryIndex = FirstAvailbleInventorySlot();
+                    AddToInventory(InventoryIndex, PickedTarget.GetComponent<EquipmentController>().E);
+                    Destroy(PickedTarget);
+                    PickedTarget = null;
+                }
+            }
+        } else
+            transform.Find("Indication Board/PickUpNotify").gameObject.SetActive(false);
     }
 }

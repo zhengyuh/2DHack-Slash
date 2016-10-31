@@ -71,7 +71,7 @@ public class CharacterSheetController : MonoBehaviour
     public void TurnOn() {
         gameObject.SetActive(true);
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(null);
-        GameObject FBO = GameObject.Find("MainPlayer/PlayerController/PlayerUI/CharacterSheet/InventoryButtons/0").gameObject;
+        GameObject FBO = GameObject.Find("MainPlayer/PlayerUI/CharacterSheet/InventoryButtons/0").gameObject;
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(FBO);
     }
 
@@ -86,7 +86,7 @@ public class CharacterSheetController : MonoBehaviour
     void UpdateCharacterSheetUI()
 	{
 		//Stats update
-		HealthValue.GetComponent<UnityEngine.UI.Text> ().text = 		PC.GetMaxHealth ().ToString();
+		HealthValue.GetComponent<UnityEngine.UI.Text> ().text = 		PC.CurrHealth.ToString();
 		ResourceValue.GetComponent<UnityEngine.UI.Text> ().text = 		PC.CurrMana.ToString();
 		ADValue.GetComponent<UnityEngine.UI.Text> ().text = 			PC.CurrAD.ToString();
 		MDValue.GetComponent<UnityEngine.UI.Text> ().text = 			PC.CurrMD.ToString ();

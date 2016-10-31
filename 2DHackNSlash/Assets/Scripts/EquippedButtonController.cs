@@ -19,7 +19,7 @@ public class EquippedButtonController : MonoBehaviour {
     void Awake() {
         PC = GameObject.Find("MainPlayer/PlayerController").transform.GetComponent<PlayerController>();
         ES = GameObject.Find("EventSystem");
-        InventoryButtons = GameObject.Find("MainPlayer/PlayerController/PlayerUI/CharacterSheet/InventoryButtons").gameObject;
+        InventoryButtons = GameObject.Find("MainPlayer/PlayerUI/CharacterSheet/InventoryButtons").gameObject;
         StatsText = transform.FindChild("StatsText").gameObject.GetComponent<Text>();
         StatsBG = transform.FindChild("StatsBG").gameObject.GetComponent<Image>();
         Slot = gameObject.name;
@@ -54,7 +54,14 @@ public class EquippedButtonController : MonoBehaviour {
             if (E != null) {
                 if(EquipmentIcon!=null)
                     DestroyObject(EquipmentIcon);
-                EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
+                //EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
+                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
+                EquipmentIcon = equipPrefab.transform.Find("Icon").gameObject;
+                EquipmentIcon.SetActive(true);
+                EquipmentIcon.name = E.Name;
+                EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
+                EquipmentIcon.transform.parent = transform;
+                Destroy(equipPrefab);
             } else {
                 DestroyObject(EquipmentIcon);
                 EquipmentIcon = null;

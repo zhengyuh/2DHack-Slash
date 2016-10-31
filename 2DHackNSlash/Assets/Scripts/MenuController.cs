@@ -39,7 +39,7 @@ public class MenuController : MonoBehaviour
     public void TurnOn() {
         gameObject.SetActive(true);
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(null);
-        GameObject FBO = GameObject.Find("MainPlayer/PlayerController/PlayerUI/Menu/SaveButton").gameObject;
+        GameObject FBO = GameObject.Find("MainPlayer/PlayerUI/Menu/SaveButton").gameObject;
         ES.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(FBO);
     }
 

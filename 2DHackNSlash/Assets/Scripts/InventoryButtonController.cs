@@ -19,7 +19,7 @@ public class InventoryButtonController : MonoBehaviour {
         Slot = int.Parse(gameObject.name);
         PC = GameObject.Find("MainPlayer/PlayerController").transform.GetComponent<PlayerController>();
         ES = GameObject.Find("EventSystem");
-        EquippedSlotButtons = GameObject.Find("MainPlayer/PlayerController/PlayerUI/CharacterSheet/EquippedSlotButtons").gameObject;
+        EquippedSlotButtons = GameObject.Find("MainPlayer/PlayerUI/CharacterSheet/EquippedSlotButtons").gameObject;
         StatsText = transform.FindChild("StatsText").gameObject.GetComponent<Text>();
         StatsBG = transform.FindChild("StatsBG").gameObject.GetComponent<Image>();
     }
@@ -54,6 +54,7 @@ public class InventoryButtonController : MonoBehaviour {
     }
 
     public void UpdateSlot() {
+        //Debug.Log(E.Name);
         if (PC.GetInventoryItem(Slot) == E) {
             return;
         } else {
@@ -61,7 +62,14 @@ public class InventoryButtonController : MonoBehaviour {
             if (E != null) {
                 if (EquipmentIcon != null)
                     DestroyObject(EquipmentIcon);
-                EquipmentIcon = EquipmentController.ObtainInventoryIcon(E, transform);
+                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
+                EquipmentIcon = equipPrefab.transform.Find("Icon").gameObject;
+                EquipmentIcon.SetActive(true);
+                EquipmentIcon.name = E.Name;
+                EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
+                EquipmentIcon.transform.parent = transform;
+                Destroy(equipPrefab);
+                EquipmentIcon.transform.localScale = new Vector2(500, 500);
             } else {
                 DestroyObject(EquipmentIcon);
                 EquipmentIcon = null;

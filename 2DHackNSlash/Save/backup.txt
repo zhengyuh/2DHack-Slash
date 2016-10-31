@@ -1,4 +1,4 @@
-0,OPOPOP,Warrior,1,1,1,1,1,1,100,100,1,30,100,1,1
+0,OPOPOP,Warrior,1,1,20,20,1,0,100,100,0,0,100,0,0
 ---CategorySeperator---
 null
 -EquipSeperator-
@@ -10,7 +10,7 @@ null
 -EquipSeperator-
 null
 ---CategorySeperator---
-0,Battle Axe,Warrior,Weapon,0,0,0,3,0,3,0,0,2,1,5,2,0,0
+null
 -EquipSeperator-
 null
 -EquipSeperator-

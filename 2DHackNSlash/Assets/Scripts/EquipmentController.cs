@@ -23,8 +23,6 @@ public class EquipmentController : MonoBehaviour {
     public Vector2 AddLPH;
     public Vector2 AddMPH;
 
-
-
     [HideInInspector]
     public Equipment E;
 
@@ -50,19 +48,22 @@ public class EquipmentController : MonoBehaviour {
         }
         PlayerController PC = GameObject.Find("MainPlayer/PlayerController").GetComponent<PlayerController>();
         Anim.SetInteger("Direction", Direction);
-        if (E.Type == "Weapon") {
+        if (PC.Attacking) {
             Anim.speed = PC.GetAttackAnimSpeed();
+        } else {
+            Anim.speed = PC.GetMovementAnimSpeed();
+        }
+        if (E.Type == "Weapon") {//Weapon animation speed is controlled by AttackCollider
+            if (AttackVector != Vector2.zero) {
+                Anim.SetBool("IsAttacking",true);
+                Anim.SetInteger("Direction", Direction);
+            } else {
+                Anim.SetBool("IsAttacking", false);
+            }
             if (Direction == 3)
                 GetComponent<SpriteRenderer>().sortingOrder = 0;
             else
                 GetComponent<SpriteRenderer>().sortingOrder = 2;
-            if (AttackVector != Vector2.zero) {
-                Anim.SetBool("IsAttacking", true);
-                Anim.SetInteger("Direction", Direction);
-                Anim.speed = PC.GetAttackAnimSpeed();
-            } else {
-                Anim.SetBool("IsAttacking", false);
-            }
         } else {//Helmet,Chest,Shackle
             Anim.speed = PC.GetMovementAnimSpeed();
         }
@@ -122,28 +123,28 @@ public class EquipmentController : MonoBehaviour {
         return equipPrefab;
     }
 
-    static public GameObject ObtainEquippedIcon(Equipment E, Transform parent) {
-        GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
-        GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
-        equipIcon.SetActive(true);
-        equipIcon.name = E.Name;
-        equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
-        equipIcon.transform.parent = parent;
-        Destroy(equipPrefab);
-        return equipIcon;
-    }
+    //static public GameObject ObtainEquippedIcon(Equipment E, Transform parent) {
+    //    GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
+    //    GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
+    //    equipIcon.SetActive(true);
+    //    equipIcon.name = E.Name;
+    //    equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
+    //    equipIcon.transform.parent = parent;
+    //    Destroy(equipPrefab);
+    //    return equipIcon;
+    //}
 
-    static public GameObject ObtainInventoryIcon(Equipment E, Transform parent) {
-        GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
-        GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
-        equipIcon.SetActive(true);
-        equipIcon.name = E.Name;
-        equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
-        equipIcon.transform.parent = parent;
-        equipIcon.transform.localScale = new Vector2(500, 500);
-        Destroy(equipPrefab);
-        return equipIcon;
-    }
+    //static public GameObject ObtainInventoryIcon(Equipment E, Transform parent) {
+    //    GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
+    //    GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
+    //    equipIcon.SetActive(true);
+    //    equipIcon.name = E.Name;
+    //    equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
+    //    equipIcon.transform.parent = parent;
+    //    equipIcon.transform.localScale = new Vector2(500, 500);
+    //    Destroy(equipPrefab);
+    //    return equipIcon;
+    //}
 
     private void InstantiateEquipmentData() {//These 3 field are must have
         E = new Equipment();
