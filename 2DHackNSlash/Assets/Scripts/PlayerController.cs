@@ -147,6 +147,8 @@ public class PlayerController : MonoBehaviour {
 
     public void DeductHealth(DMG dmg) {
         CurrHealth -= dmg.Damage;
+        IndicationController IC = transform.Find("Indication Board").GetComponent<IndicationController>();
+        IC.PopUpDmg(dmg);
     }
 
     void DieUpdate() {

@@ -20,6 +20,20 @@ public class IndicationController : MonoBehaviour {
         UpdateHealthBar();
     }
 
+    //public methods
+    public void PopUpDmg(DMG dmg) {
+        GameObject PopUpText = Instantiate(Resources.Load("UIPrefabs/PopUpText"),transform) as GameObject;
+        PopUpText.transform.localScale = new Vector3(1, 1, 1);
+        float ExitTime = PopUpText.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        Text PopText = PopUpText.GetComponent<Text>();
+        PopText.text = dmg.Damage.ToString("F0");
+        if (dmg.IsCrit) {
+            PopText.color = Color.red;
+            PopText.fontSize = 100;
+        }
+        Destroy(PopUpText, ExitTime);
+    }
+
     void UpdateHealthBar() {
         float CurrHealth;
         float MaxHealth;
