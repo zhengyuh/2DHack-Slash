@@ -95,16 +95,16 @@ public class EquipmentController : MonoBehaviour {
         Text E_NameText = Loot.transform.Find("LootBox/UI/Name").GetComponent<Text>();
         switch (E.Rarity) {
             case 0: //Common
-                E_NameText.color = Color.white;
+                E_NameText.color = MyColor.White;
                 break;
             case 1: //UnCommon
-                E_NameText.color = Color.cyan;
+                E_NameText.color = MyColor.Cyan;
                 break;
             case 2: //Perfect
-                E_NameText.color = Color.yellow;
+                E_NameText.color = MyColor.Yellow;
                 break;
             case 3: //Legendary
-                E_NameText.color = Color.green;
+                E_NameText.color = MyColor.Orange;
                 break;
         }
         E_NameText.text = E.Name;
