@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour {
+    public AudioClip hit;
+    public AudioClip crit_hit;
+    public AudioClip die;
     public float movement_animation_interval = 1f;
     public float attack_animation_interval = 1f;
 
@@ -108,7 +111,6 @@ public class PlayerController : MonoBehaviour {
         PickUpInUpdate();
         EquiPrefabsUpdate();
         BaseModelUpdate();
-        DieUpdate();
     }
 
     void FixedUpdate() {
@@ -120,9 +122,10 @@ public class PlayerController : MonoBehaviour {
 
     //Combat Methods
     public DMG AutoAttackDamageDeal(float TargetDefense) {
-        DMG dmg;
+        DMG dmg = new DMG();
         if (Random.value < (CurrCritChance / 100)) {
-            dmg.Damage = CurrAD + CurrAD * (CurrCritDmgBounus / 100) + CurrMD + CurrMD * (CurrCritDmgBounus / 100);
+            dmg.Damage += CurrAD * (CurrCritDmgBounus / 100);
+            dmg.Damage += CurrMD * (CurrCritDmgBounus / 100);
             dmg.IsCrit = true;
         } else {
             dmg.Damage = CurrAD + CurrMD;
@@ -136,7 +139,7 @@ public class PlayerController : MonoBehaviour {
 
     public void GenerateLPHMPH() {
         if (CurrHealth < MaxHealth && CurrHealth + CurrLPH <= MaxHealth)
-            CurrHealth += CurrLPH;
+                CurrHealth += CurrLPH;
         else
             CurrHealth = MaxHealth;
         if (CurrMana < MaxMana && CurrMana + CurrMPH <= MaxMana)
@@ -146,8 +149,24 @@ public class PlayerController : MonoBehaviour {
     }
 
     public void DeductHealth(DMG dmg) {
-        CurrHealth -= dmg.Damage;
         IndicationController IC = transform.Find("Indication Board").GetComponent<IndicationController>();
+        if (CurrHealth - dmg.Damage <= 0) {
+            CurrHealth -= dmg.Damage;
+            IC.UpdateHealthBar();
+            IC.PopUpDmg(dmg);
+            DieUpdate();
+            return;
+        }
+        if (dmg.IsCrit) {
+            Animator Anim = GetComponent<Animator>();
+            Anim.SetFloat("PhysicsSpeedFactor", GetPhysicsSpeedFactor());
+            Anim.Play("crit");
+            AudioSource.PlayClipAtPoint(crit_hit, transform.position, GameManager.SFX_Volume);
+        } else {
+            AudioSource.PlayClipAtPoint(hit, transform.position, GameManager.SFX_Volume);
+        }
+        CurrHealth -= dmg.Damage;
+        IC.UpdateHealthBar();
         IC.PopUpDmg(dmg);
     }
 

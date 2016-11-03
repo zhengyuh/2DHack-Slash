@@ -1,4 +1,4 @@
-0,OPOPOP,Warrior,1,1,20,20,1,0,100,100,0,0,100,0,0
+0,OPOPOP,Warrior,1,1,20,20,1,0,100,100,0,30,200,0,0
 ---CategorySeperator---
 null
 -EquipSeperator-

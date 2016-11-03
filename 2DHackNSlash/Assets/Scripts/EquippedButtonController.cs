@@ -54,14 +54,7 @@ public class EquippedButtonController : MonoBehaviour {
             if (E != null) {
                 if (EquipmentIcon != null)
                     DestroyObject(EquipmentIcon);
-                //EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
-                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
-                EquipmentIcon = equipPrefab.transform.Find("Icon").gameObject;
-                EquipmentIcon.SetActive(true);
-                EquipmentIcon.name = E.Name;
-                EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
-                EquipmentIcon.transform.parent = transform;
-                Destroy(equipPrefab);
+                EquipmentIcon = EquipmentController.ObtainEquippedIcon(E, transform);
             } else {
                 DestroyObject(EquipmentIcon);
                 EquipmentIcon = null;

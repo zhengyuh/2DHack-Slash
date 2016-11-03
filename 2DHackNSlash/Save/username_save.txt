@@ -1,52 +1,52 @@
-0,OPOPOP,Warrior,1,1,20,20,1,0,100,100,0,0,100,0,0
+0,OPOPOP,Warrior,1,1,20,20,1,0,100,100,0,30,200,0,0
 ---CategorySeperator---
-null
+1,Silver Crown,Warrior,Helmet,0,5,4,0,0,0,0,5,0,0,0,0,0,0
 -EquipSeperator-
-null
+3,Cracked Ribcage,Warrior,Chest,0,7,8,0,0,0,0,15,0,0,0,0,0,0
 -EquipSeperator-
-null
+2,Radiant Band,Warrior,Shackle,0,8,6,0,0,0,6,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Greatsword,Warrior,Weapon,0,0,0,6,0,4,0,0,4,2,1,0,0,0
 -EquipSeperator-
-null
+2,Blood Orb,All,Trinket,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 ---CategorySeperator---
-null
+3,Horned Skullcap,Warrior,Helmet,0,13,11,0,0,0,14,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+0,Battered Manacle,Warrior,Shackle,0,2,2,0,0,0,3,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+0,Torch,All,Trinket,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Silver Band,Warrior,Shackle,0,6,3,0,0,0,4,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Sea Orb,All,Trinket,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Silver Chestguard,Warrior,Chest,0,3,4,0,0,0,0,7,0,0,0,0,0,0
 -EquipSeperator-
-null
+3,Horned Skullcap,Warrior,Helmet,0,15,7,0,0,0,13,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+0,Battle Axe,Warrior,Weapon,0,0,0,2,0,3,0,0,5,1,0,1,0,0
 -EquipSeperator-
-null
+3,Bone Bracelet,Warrior,Shackle,0,12,11,0,0,0,10,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Greatsword,Warrior,Weapon,0,0,0,6,0,7,0,0,6,5,2,1,0,0
 -EquipSeperator-
-null
+3,Cracked Ribcage,Warrior,Chest,0,11,15,0,0,0,0,7,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Greatsword,Warrior,Weapon,0,0,0,2,0,3,0,0,5,6,1,1,0,0
 -EquipSeperator-
-null
+0,Battered Manacle,Warrior,Shackle,0,1,2,0,0,0,1,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+0,Battered Breastplate,Warrior,Chest,0,5,5,0,0,0,0,5,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Silver Crown,Warrior,Helmet,0,2,2,0,0,0,0,4,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Silver Chestguard,Warrior,Chest,0,7,7,0,0,0,0,3,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Silver Band,Warrior,Shackle,0,7,4,0,0,0,5,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+2,Blood Orb,All,Trinket,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 -EquipSeperator-
-null
+1,Greatsword,Warrior,Weapon,0,0,0,5,0,7,0,0,2,5,2,2,0,0
 -EquipSeperator-
 null
 -EquipSeperator-

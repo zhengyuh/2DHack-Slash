@@ -123,28 +123,28 @@ public class EquipmentController : MonoBehaviour {
         return equipPrefab;
     }
 
-    //static public GameObject ObtainEquippedIcon(Equipment E, Transform parent) {
-    //    GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
-    //    GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
-    //    equipIcon.SetActive(true);
-    //    equipIcon.name = E.Name;
-    //    equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
-    //    equipIcon.transform.parent = parent;
-    //    Destroy(equipPrefab);
-    //    return equipIcon;
-    //}
+    static public GameObject ObtainEquippedIcon(Equipment E, Transform parent) {
+        GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
+        GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
+        equipIcon.SetActive(true);
+        equipIcon.name = E.Name;
+        equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
+        equipIcon.transform.parent = parent;
+        Destroy(equipPrefab);
+        return equipIcon;
+    }
 
-    //static public GameObject ObtainInventoryIcon(Equipment E, Transform parent) {
-    //    GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
-    //    GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
-    //    equipIcon.SetActive(true);
-    //    equipIcon.name = E.Name;
-    //    equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
-    //    equipIcon.transform.parent = parent;
-    //    equipIcon.transform.localScale = new Vector2(500, 500);
-    //    Destroy(equipPrefab);
-    //    return equipIcon;
-    //}
+    static public GameObject ObtainInventoryIcon(Equipment E, Transform parent) {
+        GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
+        GameObject equipIcon = equipPrefab.transform.Find("Icon").gameObject;
+        equipIcon.SetActive(true);
+        equipIcon.name = E.Name;
+        equipIcon.transform.position = parent.transform.position + equipIcon.transform.position;
+        equipIcon.transform.parent = parent;
+        equipIcon.transform.localScale = new Vector2(500, 500);
+        Destroy(equipPrefab);
+        return equipIcon;
+    }
 
     private void InstantiateEquipmentData() {//These 3 field are must have
         E = new Equipment();

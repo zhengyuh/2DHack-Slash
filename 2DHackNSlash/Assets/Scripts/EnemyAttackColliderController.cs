@@ -29,11 +29,6 @@ public class EnemyAttackColliderController : MonoBehaviour {
             }
             PlayerController Player = collider.GetComponent<PlayerController>();
             DMG dmg = EC.AutoAttackDamageDeal(Player.CurrDefense);
-            if (dmg.IsCrit) {
-                Animator PlayerAnim = collider.transform.GetComponent<Animator>();
-                PlayerAnim.SetFloat("PhysicsSpeedFactor", Player.GetPhysicsSpeedFactor());
-                PlayerAnim.Play("crit");
-            }
             Player.DeductHealth(dmg);
             HittedStack.Push(collider);
         } 

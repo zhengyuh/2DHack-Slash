@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class Equipment :System.Object{
+public class Equipment :ScriptableObject{
     public int Rarity;//0 common and so on
     public string Name;
     public string Class;//For non-trinket equipment only

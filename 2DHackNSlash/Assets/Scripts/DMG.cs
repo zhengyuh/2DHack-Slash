@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public struct DMG{
-    public float Damage;
-    public bool IsCrit;
+public class DMG : System.Object{
+    public float Damage = 0;
+    public bool IsCrit = false;
 }

@@ -17,13 +17,12 @@ public class IndicationController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        UpdateHealthBar();
     }
 
     //public methods
     public void PopUpDmg(DMG dmg) {
         GameObject PopUpText = Instantiate(Resources.Load("UIPrefabs/PopUpText"),transform) as GameObject;
-        PopUpText.transform.localScale = new Vector3(1, 1, 1);
+        PopUpText.transform.localScale = new Vector3(2, 2, 1);
         float ExitTime = PopUpText.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
         Text PopText = PopUpText.GetComponent<Text>();
         PopText.text = dmg.Damage.ToString("F0");
@@ -34,7 +33,7 @@ public class IndicationController : MonoBehaviour {
         Destroy(PopUpText, ExitTime);
     }
 
-    void UpdateHealthBar() {
+    public void UpdateHealthBar() {
         float CurrHealth;
         float MaxHealth;
         if (ParentTransform.tag == "Player") {

@@ -61,16 +61,7 @@ public class InventoryButtonController : MonoBehaviour {
         } else {
             E = PC.GetInventoryItem(Slot);
             if (E != null) {
-                if (EquipmentIcon != null)
-                    DestroyObject(EquipmentIcon);
-                GameObject equipPrefab = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name)) as GameObject;
-                EquipmentIcon = equipPrefab.transform.Find("Icon").gameObject;
-                EquipmentIcon.SetActive(true);
-                EquipmentIcon.name = E.Name;
-                EquipmentIcon.transform.position = transform.position + EquipmentIcon.transform.position;
-                EquipmentIcon.transform.parent = transform;
-                Destroy(equipPrefab);
-                EquipmentIcon.transform.localScale = new Vector2(500, 500);
+                EquipmentIcon = EquipmentController.ObtainInventoryIcon(E,transform);
             } else {
                 DestroyObject(EquipmentIcon);
                 EquipmentIcon = null;

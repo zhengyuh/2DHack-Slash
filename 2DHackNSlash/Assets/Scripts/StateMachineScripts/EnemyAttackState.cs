@@ -3,22 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class EnemyAttackState : StateMachineBehaviour {
-    public AudioClip Audio;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-        MeleeAttackEnter(animator, stateInfo, layerIndex);
+        if (animator.transform.GetComponent<EnemyController>().AutoAttackType == 0)
+            MeleeAttackEnter(animator, stateInfo, layerIndex);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+        if (animator.transform.GetComponent<EnemyController>().AutoAttackType == 0 && stateInfo.normalizedTime >= 0.5) {
+            MeleeAttacExit(animator, stateInfo, layerIndex);
+        }
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-        EnemyController EC = animator.gameObject.GetComponent<EnemyController>();
-        Transform T_AttackCollider = animator.transform.Find("AttackCollider");
-        MeleeAttacExit(animator, stateInfo, layerIndex);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
@@ -53,6 +53,7 @@ public class EnemyAttackState : StateMachineBehaviour {
             AttackCollider.offset = new Vector2(0, -AttackRange);
         }
         AttackCollider.enabled = true;
+        AudioSource.PlayClipAtPoint(EC.attack, animator.transform.position, GameManager.SFX_Volume);
     }
 
     void MeleeAttacExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {

@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GamaManager : MonoBehaviour {
-    public static GamaManager instance;
-    public static GamaManager Instance { get { return instance; } }
+public class GameManager : MonoBehaviour {
+    public static float SFX_Volume = 1;
+
+    public static GameManager instance;
+    public static GameManager Instance { get { return instance; } }
 
     ControllerManager CM;
 
@@ -39,4 +41,5 @@ public class GamaManager : MonoBehaviour {
     public void LoadMenuScene() {
         Application.LoadLevel("Menu");
     }
+
 }

@@ -9,21 +9,20 @@ public class PlayerAttackColliderController : MonoBehaviour {
 
     BoxCollider2D AttackCollider;
     PlayerController PC;
+    WeaponController WC;
 
     [HideInInspector]
     public Stack<Collider2D> HittedStack = new Stack<Collider2D>();
-    //List<GameObject> HittedList;
 
     void Start() {
         AttackCollider = GetComponent<BoxCollider2D>();
         if (transform.parent.parent != null) {
             PC = transform.parent.parent.GetComponent<PlayerController>();
+            WC = transform.parent.GetComponent<WeaponController>();
         }
     }
 
     void Update() {
-        //HittedStack is updated is state, update in Update() is heavy
-        //print(HittedStack.Count);
     }
 
     void OnTriggerEnter2D(Collider2D collider) {
@@ -33,12 +32,7 @@ public class PlayerAttackColliderController : MonoBehaviour {
             }
             EnemyController Enemy = collider.GetComponent<EnemyController>();
             DMG dmg = PC.AutoAttackDamageDeal(Enemy.CurrDefense);
-            if (dmg.IsCrit) {
-                Animator EnemyAnim = collider.transform.GetComponent<Animator>();
-                EnemyAnim.SetFloat("PhysicsSpeedFactor", Enemy.GetPhysicsSpeedFactor());
-                EnemyAnim.Play("crit");
-            }
-            Enemy.DeductHealth(dmg);
+            Enemy.DeductHealth(dmg,WC.crit);
             HittedStack.Push(collider);
         }
         else if (collider.tag == "Player") {
