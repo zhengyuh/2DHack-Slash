@@ -39,8 +39,19 @@ public class EquipmentController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
+        //IgnoreCollisionUpdate();
     }
+
+    //void IgnoreCollisionUpdate() {
+    //    List<GameObject> IgnoreList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+    //    IgnoreList.AddRange(GameObject.FindGameObjectsWithTag("Enemy"));
+    //    foreach (var so in GameObject.FindGameObjectsWithTag("Skill")) {
+    //        if (so.GetComponent<Collider2D>() != null)
+    //            IgnoreList.Add(so);
+    //    }
+    //    foreach (var o in IgnoreList)
+    //        Physics2D.IgnoreCollision(o.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+    //}
 
     public void EquipUpdate(int Direction, Vector2 AttackVector) {
         if (E.Type == "Trinket") {//No update for trinket for now
@@ -69,24 +80,14 @@ public class EquipmentController : MonoBehaviour {
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collider) {
-        if (collider.transform.tag == "Player" || collider.transform.tag == "Enemy") {
-            Physics2D.IgnoreCollision(collider.transform.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-        }
-    }
-
     public void InstantiateLoot(Transform T) {
         InstantiateEquipmentData();
         GameObject Loot = Instantiate(Resources.Load("EquipmentPrefabs/" + E.Name), T.position,T.rotation) as GameObject;
+        Loot.layer = LayerMask.NameToLayer("Loot");
+        Loot.transform.Find("LootBox").gameObject.layer = LayerMask.NameToLayer("LootBox");
         Loot.name = E.Name;
         GameObject[] PlayerList = GameObject.FindGameObjectsWithTag("Player");
         GameObject[] EnemyList = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject player in PlayerList) {
-            Physics2D.IgnoreCollision(player.transform.GetComponent<Collider2D>(), Loot.transform.GetComponent<Collider2D>());
-        }
-        foreach (GameObject enemy in EnemyList) {
-            Physics2D.IgnoreCollision(enemy.transform.GetComponent<Collider2D>(), Loot.transform.GetComponent<Collider2D>());
-        }
         Destroy(Loot.transform.Find("Icon").gameObject);
         Loot.transform.Find("LootBox").gameObject.SetActive(true);
         Loot.GetComponent<EquipmentController>().LootRandomlize();
@@ -146,8 +147,8 @@ public class EquipmentController : MonoBehaviour {
         return equipIcon;
     }
 
-    private void InstantiateEquipmentData() {//These 3 field are must have
-        E = new Equipment();
+    private void InstantiateEquipmentData() {//These 4 field are must have
+        E = ScriptableObject.CreateInstance<Equipment>();
         E.Rarity = Rarity;
         E.Name = Name;
         E.Class = Class;

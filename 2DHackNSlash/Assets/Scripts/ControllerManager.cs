@@ -17,9 +17,15 @@ public class ControllerManager : MonoBehaviour {
     public KeyCode AttackDown = KeyCode.DownArrow;
     public KeyCode AttackRight = KeyCode.RightArrow;
 
-    public KeyCode Interact = KeyCode.F; 
+    public KeyCode Interact = KeyCode.F;
 
-    //Xbobx one Controller 
+    //Active Skills
+    public KeyCode Skill0 = KeyCode.Alpha1;
+    public KeyCode Skill1 = KeyCode.Alpha2;
+    public KeyCode Skill2 = KeyCode.Alpha3;
+    public KeyCode Skill3 = KeyCode.Alpha4;
+
+    //Xbox one Controller 
 
     public string J_Start = "joystick button 7";
     public string J_Back = "joystick button 6";
@@ -50,7 +56,7 @@ public class ControllerManager : MonoBehaviour {
     [HideInInspector]
     public Vector2 AttackVector;
     [HideInInspector]
-    public int Direction;
+    public int Direction; //0,1,2,3 -> Down,Left,Right,Up
 
     [HideInInspector]
     public bool AllowControlUpdate = true;

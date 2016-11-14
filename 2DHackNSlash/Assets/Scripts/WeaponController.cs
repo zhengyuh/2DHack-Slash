@@ -14,5 +14,4 @@ public class WeaponController : MonoBehaviour{
     public AudioClip combo_1;
     public AudioClip combo_2;
     public AudioClip combo_3;
-    public AudioClip crit;
 }
