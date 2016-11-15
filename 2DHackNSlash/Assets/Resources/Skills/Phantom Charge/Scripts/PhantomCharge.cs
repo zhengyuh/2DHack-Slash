@@ -5,21 +5,22 @@ using System.Collections.Generic;
 public class PhantomCharge : ActiveSkill {
     public AudioClip SFX;
     public AudioClip Hit;
-    public float ParticleStayTime;
+    public float SmokeStayTime;
+    public float EndStayTime;
 
     [HideInInspector]
     public float ADScale;
     [HideInInspector]
     public float Force;
 
-    ParticleSystem PS;
+    ParticleSystem SmokePS;
+
     PlayerController PC;
     public Stack<Collider2D> HittedStack = new Stack<Collider2D>();
 
     protected override void Awake() {
         base.Awake();
-        PS = GetComponent<ParticleSystem>();
-        PS.enableEmission = false;
+        SmokePS = transform.GetComponent<ParticleSystem>();
     }
     // Use this for initialization
     protected override void Start() {
@@ -94,7 +95,8 @@ public class PhantomCharge : ActiveSkill {
         } else {
             charge_direction = PC.MoveVector;
         }
-        PS.enableEmission = true;
+
+        SmokePS.enableEmission = true;
         transform.GetComponent<Collider2D>().enabled = true;
         PC.rb.drag = 0;
         PC.rb.AddForce(charge_direction*Force,ForceMode2D.Impulse);
@@ -153,11 +155,12 @@ public class PhantomCharge : ActiveSkill {
         PC.rb.drag = 10;
         transform.GetComponent<Collider2D>().enabled = false;
         HittedStack.Clear();
-        StartCoroutine(DisablePSWithDelay(ParticleStayTime));
+        PC.ActiveVFXWithStayTime("Phantom Charge End", EndStayTime);
+        StartCoroutine(DisableSmokePS(SmokeStayTime));
     }
 
-    IEnumerator DisablePSWithDelay(float time) {
+    IEnumerator DisableSmokePS(float time) {
         yield return new WaitForSeconds(time);
-        PS.enableEmission = false;
+        SmokePS.enableEmission = false;
     }
 }

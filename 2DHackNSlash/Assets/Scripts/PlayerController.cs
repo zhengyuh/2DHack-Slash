@@ -12,7 +12,7 @@ public class PlayerController : ObjectController {
     public AudioClip lvlup;
 
     [HideInInspector]
-    public CharacterDataStruct PlayerData;
+    private CharacterDataStruct PlayerData;
 
     [HideInInspector]
     public string Name;
@@ -74,10 +74,9 @@ public class PlayerController : ObjectController {
         base.Awake();
         //QualitySettings.vSyncCount = 0;
         //Application.targetFrameRate = 30;
-        if (FirstWeapon!=null)
+        if (FirstWeapon != null)
             FirstWeapon.GetComponent<EquipmentController>().InstantiateLoot(transform);
         EquipPrefabs = new Dictionary<string, GameObject>();
-        
         if (transform.parent.name == "MainPlayer") {
             if (ControllerManager.Instance) {
                 CM = ControllerManager.Instance;
@@ -90,12 +89,12 @@ public class PlayerController : ObjectController {
             PUIC = transform.parent.Find("PlayerUI").GetComponent<PlayerUIController>();
             PlayerData = SLM.LoadPlayerInfo(SLM.SlotIndexToLoad);
         }
-        InitPlayer();
+        //InitPlayer();
     }
 
     protected override void Start() {
         base.Start();
-        //InitPlayer();
+        InitPlayer();
     }
 
     // Update is called once per frame
@@ -160,10 +159,6 @@ public class PlayerController : ObjectController {
             //    PUIC.UpdateExpBar();
         }
         SLM.SaveCurrentPlayerInfo();
-    }
-
-    public int GetNextLvlExp() {
-        return NextLevelExp;
     }
 
 
@@ -348,13 +343,14 @@ public class PlayerController : ObjectController {
 
     //-------private
     void InitPlayer() {
-        if(PlayerData.lvl<LvlExpModule.LvlCap)
+        if (PlayerData.lvl < LvlExpModule.LvlCap)
             NextLevelExp = LvlExpModule.GetRequiredExp(PlayerData.lvl + 1);
         InitMaxStats();
-        InstaniateEquipment();
         InitSkillTree();
         InitPassives();
         InitCurrStats();
+
+        InstaniateEquipment();
         //PUIC.UpdateExpBar();
     }
 
@@ -716,5 +712,23 @@ public class PlayerController : ObjectController {
 
     public override string GetName() {
         return Name;
+    }
+
+    public string GetClass() {
+        return PlayerData.Class;
+    }
+    public int Getlvl() {
+        return PlayerData.lvl;
+    }
+    public int GetExp() {
+        return PlayerData.exp;
+    }
+
+    public int GetNextLvlExp() {
+        return NextLevelExp;
+    }
+
+    public CharacterDataStruct GetPlayerData() {
+        return PlayerData;
     }
 }

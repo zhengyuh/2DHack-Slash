@@ -97,7 +97,7 @@ public class InventoryButtonController : MonoBehaviour {
 
             Transform Class = Stats.transform.Find("Class");
             Text ClassText = Class.GetComponent<Text>();
-            if (E.Class == PC.PlayerData.Class || E.Class == "All")
+            if (E.Class == PC.GetClass() || E.Class == "All")
                 ClassText.color = MyColor.Green;
             else
                 ClassText.color = MyColor.Red;
@@ -115,7 +115,7 @@ public class InventoryButtonController : MonoBehaviour {
 
             Transform LvlReq = Stats.transform.Find("LvlReq");
             Text LvlReqText = LvlReq.GetComponent<Text>();
-            if (E.LvlReq > PC.PlayerData.lvl)
+            if (E.LvlReq > PC.Getlvl())
                 LvlReqText.color = MyColor.Red;
             else
                 LvlReqText.color = MyColor.Green;

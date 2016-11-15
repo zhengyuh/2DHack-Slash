@@ -79,7 +79,7 @@ public class PlayerUIController : MonoBehaviour {
     }
 
     public void UpdateExpBar() {
-        ExpMask.GetComponent<Image>().fillAmount = ((float)PC.PlayerData.exp / (float)PC.GetNextLvlExp());
+        ExpMask.GetComponent<Image>().fillAmount = ((float)PC.GetExp() / (float)PC.GetNextLvlExp());
     }
 
 }

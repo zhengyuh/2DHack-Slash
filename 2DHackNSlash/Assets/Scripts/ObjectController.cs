@@ -62,7 +62,13 @@ public abstract class ObjectController : MonoBehaviour {
     virtual protected void Start() {
     }
 
-
+    public void ActiveVFXWithStayTime(string VFX, float StayTime) {
+        GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;
+        VFX_OJ.transform.position = VFX_Transform.position;
+        VFX_OJ.transform.localScale = VFX_Transform.localScale;
+        VFX_OJ.name = VFX;
+        Destroy(VFX_OJ, StayTime);
+    }
 
     public void ActiveOneTimeVFX(string VFX) {
         GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;

@@ -39,7 +39,7 @@ public class CharacterSheetController : MonoBehaviour
 	{
 		UpdateCharacterSheetUI ();
 
-		if (PC.PlayerData.Class == "Warrior") {
+		if (PC.GetClass() == "Warrior") {
 			ResourceLabel.GetComponent<UnityEngine.UI.Text> ().text = "Rage";
 			ResourcePerHitLabel.GetComponent<UnityEngine.UI.Text> ().text = "Rage Per Hit";
 		}
@@ -88,7 +88,7 @@ public class CharacterSheetController : MonoBehaviour
 
     void UpdateCharacterSheetUI()
 	{
-        transform.Find("StatsPanel/Stats").GetComponent<Text>().text = "Lvl "+PC.PlayerData.lvl + " : "+PC.PlayerData.exp + "/" + PC.GetNextLvlExp();//Just for now
+        transform.Find("StatsPanel/Stats").GetComponent<Text>().text = "Lvl "+PC.Getlvl() + " : "+PC.GetExp() + "/" + PC.GetNextLvlExp();//Just for now
 
 		//Stats update
 		HealthValue.GetComponent<UnityEngine.UI.Text> ().text = 		PC.CurrHealth.ToString(Percision);
