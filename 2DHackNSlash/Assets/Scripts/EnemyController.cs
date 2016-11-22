@@ -88,45 +88,32 @@ public class EnemyController : ObjectController {
 
     void MoveUpdate() {
         if (MoveVector != Vector2.zero)
-            //rb.MovePosition(rb.position + AI.MoveVector * (CurrMoveSpd/100) * Time.deltaTime);
-            rb.AddForce(MoveVector * (CurrMoveSpd / 100) * rb.drag);
+            rb.MovePosition(rb.position + AI.MoveVector * (CurrMoveSpd / 100) * Time.deltaTime);
+        //rb.AddForce(MoveVector * (CurrMoveSpd / 100) * rb.drag);
+        //rb.velocity = MoveVector * (CurrMoveSpd / 100);
     }
 
     void ControlUpdate() {
-        if (Stunned)
+        if (Stunned) {
+            AttackVector = Vector2.zero;
+            MoveVector = Vector2.zero;
             return;
+        }
         if (AI) {
             AttackVector = AI.AttackVector;
-            MoveVector = AI.MoveVector;
+            if (!HasForce()) {
+                MoveVector = AI.MoveVector;
+            } else {
+                MoveVector = Vector2.zero;
+            }
             Direction = AI.Direction;
         }
     }
 
     //----------public
-
     //Combat
-    public override bool HasBuff(System.Type buff) {
-        Buff[] buffs = Buffs.GetComponentsInChildren<Buff>();
-        if (buffs.Length == 0)
-            return false;
-        foreach (Buff _buff in buffs)
-            if (_buff.GetType() == buff)
-                return true;
-        return false;
-    }
-
-    public override bool HasDebuff(System.Type debuff) {
-        Debuff[] debuffs = Debuffs.GetComponentsInChildren<Debuff>();
-        if (debuffs.Length == 0)
-            return false;
-        foreach (Debuff _debuff in debuffs)
-            if (_debuff.GetType() == debuff)
-                return true;
-        return false;
-    }
-
     override public Value AutoAttackDamageDeal(float TargetDefense) {
-        Value dmg = Value.CreateValue();
+        Value dmg = Value.CreateValue(0, 0, false, GetComponent<ObjectController>());
         if (Random.value < (CurrCritChance / 100)) {
             dmg.Amount += CurrAD * (CurrCritDmgBounus / 100);
             dmg.Amount += CurrMD * (CurrCritDmgBounus / 100);
@@ -191,15 +178,15 @@ public class EnemyController : ObjectController {
 
 
     //Animation
-    public float GetMovementAnimSpeed() {
+    override public float GetMovementAnimSpeed() {
         return (CurrMoveSpd/100) / (movement_animation_interval);
     }
 
-    public float GetAttackAnimSpeed() {
+    override public float GetAttackAnimSpeed() {
         return (CurrAttkSpd/100) / (attack_animation_interval);
     }
 
-    public float GetPhysicsSpeedFactor() {
+    override public float GetPhysicsSpeedFactor() {
         if (!Attacking) {
             if (CurrMoveSpd < 100)
                 return 1 + CurrMoveSpd / 100;
@@ -259,8 +246,6 @@ public class EnemyController : ObjectController {
 
 
 
-
-
     override public float GetMaxHealth() {
         return MaxHealth;
     }
@@ -273,7 +258,7 @@ public class EnemyController : ObjectController {
     override public float GetMaxMD() {
         return MaxMD;
     }
-    override public float GetMaxAttSpd() {
+    override public float GetMaxAttkSpd() {
         return MaxAttkSpd;
     }
     override public float GetMaxMoveSpd() {
@@ -311,7 +296,7 @@ public class EnemyController : ObjectController {
     override public float GetCurrMD() {
         return CurrMD;
     }
-    override public float GetCurrAttSpd() {
+    override public float GetCurrAttkSpd() {
         return CurrAttkSpd;
     }
     override public float GetCurrMoveSpd() {

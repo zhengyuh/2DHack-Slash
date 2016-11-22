@@ -57,7 +57,7 @@ public class PlayerController : ObjectController {
     Dictionary<string, GameObject> EquipPrefabs;
     
 
-    public ControllerManager CM;
+    private ControllerManager CM;
     private SaveLoadManager SLM;
     private PlayerUIController PUIC;
 
@@ -110,19 +110,28 @@ public class PlayerController : ObjectController {
     }
 
     void ControlUpdate() {
-        if (Stunned)
+        if (Stunned) {
+            AttackVector = Vector2.zero;
+            MoveVector = Vector2.zero;
             return;
-        if (CM != null) {
-            AttackVector = CM.AttackVector;
-            MoveVector = CM.MoveVector;
-            Direction = CM.Direction;
+        } else {
+            if (CM != null) {
+                AttackVector = CM.AttackVector;
+                if (!HasForce()) {
+                    MoveVector = CM.MoveVector;
+                } else {
+                    MoveVector = Vector2.zero;
+                }
+                Direction = CM.Direction;
+            }
         }
     }
 
     void MoveUpdate() {
         if (MoveVector != Vector2.zero) {
-            //rb.MovePosition(rb.position + MoveVector * (CurrMoveSpd / 100) * Time.deltaTime);
-            rb.AddForce(MoveVector * (CurrMoveSpd / 100) * rb.drag);
+            rb.MovePosition(rb.position + MoveVector * (CurrMoveSpd / 100) * Time.deltaTime);
+            //rb.AddForce(MoveVector * (CurrMoveSpd / 100) * rb.drag);
+            //rb.velocity = MoveVector * (CurrMoveSpd / 100);
         }
     }
 
@@ -161,30 +170,9 @@ public class PlayerController : ObjectController {
         SLM.SaveCurrentPlayerInfo();
     }
 
-
-    //Combat Method
-    public override bool HasBuff(System.Type buff) {
-        Buff[] buffs = Buffs.GetComponentsInChildren<Buff>();
-        if (buffs.Length == 0)
-            return false;
-        foreach (Buff _buff in buffs)
-            if (_buff.GetType() == buff)
-                return true;
-        return false;
-    }
-
-    public override bool HasDebuff(System.Type debuff) {
-        Debuff[] debuffs = Debuffs.GetComponentsInChildren<Debuff>();
-        if (debuffs.Length == 0)
-            return false;
-        foreach (Debuff _debuff in debuffs)
-            if (_debuff.GetType() == debuff)
-                return true;
-        return false;
-    }
-
+    //Combat
     override public Value AutoAttackDamageDeal(float TargetDefense) {
-        Value dmg = Value.CreateValue();
+        Value dmg = Value.CreateValue(0,0,false,GetComponent<ObjectController>());
         if (UnityEngine.Random.value < (CurrCritChance / 100)) {
             dmg.Amount += CurrAD * (CurrCritDmgBounus / 100);
             dmg.Amount += CurrMD * (CurrCritDmgBounus / 100);
@@ -263,15 +251,15 @@ public class PlayerController : ObjectController {
 
 
     //Animation Handling
-    public float GetMovementAnimSpeed() {
+    override public float GetMovementAnimSpeed() {
         return (CurrMoveSpd/100) / (movement_animation_interval);
     }
 
-    public float GetAttackAnimSpeed() {
+    override public float GetAttackAnimSpeed() {
         return (CurrAttkSpd/100) / (attack_animation_interval);
     }
 
-    public float GetPhysicsSpeedFactor() {
+    override public float GetPhysicsSpeedFactor() {
         if (!Attacking) {
             if (CurrMoveSpd < 100)
                 return 1 + CurrMoveSpd / 100;
@@ -293,6 +281,15 @@ public class PlayerController : ObjectController {
     public bool InventoryIsFull() {
         return FirstAvailbleInventorySlot() == PlayerData.Inventory.Length;
     }
+
+
+    public WeaponController GetEquippedWeaponController() {
+        //Debug.Log("Player version");
+        if (GetEquippedItem("Weapon") == null)
+            return null;
+        return transform.Find(GetEquippedItem("Weapon").Name).GetComponent<WeaponController>();
+    }
+
     public Equipment GetEquippedItem(string Slot) {
         return PlayerData.Equipments[Slot];
     }
@@ -343,14 +340,18 @@ public class PlayerController : ObjectController {
 
     //-------private
     void InitPlayer() {
+        InstaniateEquipmentModel();
+
         if (PlayerData.lvl < LvlExpModule.LvlCap)
             NextLevelExp = LvlExpModule.GetRequiredExp(PlayerData.lvl + 1);
+
         InitMaxStats();
         InitSkillTree();
+        InitOnCallEvent();
         InitPassives();
         InitCurrStats();
 
-        InstaniateEquipment();
+
         //PUIC.UpdateExpBar();
     }
 
@@ -373,12 +374,12 @@ public class PlayerController : ObjectController {
         }
         SkillTreeController STC = SkillTree.GetComponent<SkillTreeController>();
         for (int i = 0; i < PlayerData.SkillTreelvls.Length; i++) {
-            if (STC.SkillTree[i] != null && PlayerData.SkillTreelvls[i] != 0) {//Does lvl check here
+            if (STC.SkillTree[i] != null && PlayerData.SkillTreelvls[i] != 0) {//Does lvl+skill check here
                 GameObject SkillObject = Instantiate(Resources.Load("SkillPrefabs/" + STC.SkillTree[i].Name)) as GameObject;
                 if (SkillObject.transform.GetComponent<Skill>().GetType().IsSubclassOf(typeof(ActiveSkill)))
-                    SkillObject.transform.parent = Actives;
+                    SkillObject.transform.SetParent(Actives);
                 else if (SkillObject.transform.GetComponent<Skill>().GetType().IsSubclassOf(typeof(PassiveSkill))) {
-                    SkillObject.transform.parent = Passives;
+                    SkillObject.transform.SetParent(Passives);
                 }
                 SkillObject.name = STC.SkillTree[i].Name;
                 SkillObject.GetComponent<Skill>().InitSkill(PlayerData.SkillTreelvls[i]);
@@ -479,11 +480,10 @@ public class PlayerController : ObjectController {
             }
         }
 
-        ON_DMG_DEAL = null;
-        ON_HEALTH_UPDATE = null;
-        ON_MANA_UPDATE = null;
+        InitOnCallEvent();
 
         InitPassives();
+
         if (CurrHealth>MaxHealth)
             CurrHealth = MaxHealth;
         if(CurrMana>MaxMana)
@@ -498,9 +498,16 @@ public class PlayerController : ObjectController {
         CurrLPH = MaxLPH;
         CurrMPH = MaxMPH;
     }
-    void InstaniateEquipment() {
+
+    void InitOnCallEvent() {
+        ON_DMG_DEAL = null;
+        ON_HEALTH_UPDATE = null;
+        ON_MANA_UPDATE = null;
+    }
+
+    void InstaniateEquipmentModel() {
         if (PlayerData.Class == "Warrior") {
-            BaseModel = Instantiate(Resources.Load("Red Ghost/Ghost/Red Ghost"), transform) as GameObject;
+            BaseModel = Instantiate(Resources.Load("BaseModelPrefabs/Red Ghost"), transform) as GameObject;
             BaseModel.name = "Red Ghost";
             BaseModel.transform.position = transform.position + BaseModel.transform.position;
         }
@@ -541,6 +548,8 @@ public class PlayerController : ObjectController {
         if(PlayerData.exp >= NextLevelExp) {
             PlayerData.lvl++;
             PlayerData.exp = 0;
+            CurrHealth = MaxHealth;
+            CurrMana = MaxMana;
             NextLevelExp = LvlExpModule.GetRequiredExp(PlayerData.lvl + 1);
             AudioSource.PlayClipAtPoint(lvlup, transform.position, GameManager.SFX_Volume);
             PlayerData.StatPoints++;
@@ -559,11 +568,6 @@ public class PlayerController : ObjectController {
 
 
 
-
-
-
-
-
     override public float GetMaxHealth() {
         return MaxHealth;
     }
@@ -576,7 +580,7 @@ public class PlayerController : ObjectController {
     override public float GetMaxMD() {
         return MaxMD;
     }
-    override public float GetMaxAttSpd() {
+    override public float GetMaxAttkSpd() {
         return MaxAttkSpd;
     }
     override public float GetMaxMoveSpd() {
@@ -614,7 +618,7 @@ public class PlayerController : ObjectController {
     override public float GetCurrMD() {
         return CurrMD;
     }
-    override public float GetCurrAttSpd() {
+    override public float GetCurrAttkSpd() {
         return CurrAttkSpd;
     }
     override public float GetCurrMoveSpd() {
@@ -730,5 +734,9 @@ public class PlayerController : ObjectController {
 
     public CharacterDataStruct GetPlayerData() {
         return PlayerData;
+    }
+
+    public ControllerManager GetCM() {//For mainplayer only
+        return CM;
     }
 }

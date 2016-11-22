@@ -19,6 +19,8 @@ public class ControllerManager : MonoBehaviour {
 
     public KeyCode Interact = KeyCode.F;
 
+    public KeyCode Tab = KeyCode.Tab;
+
     //Active Skills
     public KeyCode Skill0 = KeyCode.Alpha1;
     public KeyCode Skill1 = KeyCode.Alpha2;
@@ -26,7 +28,6 @@ public class ControllerManager : MonoBehaviour {
     public KeyCode Skill3 = KeyCode.Alpha4;
 
     //Xbox one Controller 
-
     public string J_Start = "joystick button 7";
     public string J_Back = "joystick button 6";
 
@@ -39,7 +40,7 @@ public class ControllerManager : MonoBehaviour {
 
     public string J_LB = "joystick button 4";
     public string J_RB = "joystick button 5";
-    public string J_LTRT = "J_LTRT"; //This one is actually an axis for fk sake IDK Why
+    public string J_LTRT = "J_LTRT"; //This one is actually an axis for fk sake
 
     public string J_X = "joystick button 2";
     public string J_Y = "joystick button 3";

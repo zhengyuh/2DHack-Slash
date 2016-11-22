@@ -10,6 +10,8 @@ public abstract class Skill : MonoBehaviour {
     public string Name;
     public string Description;
 
+    protected ObjectController OC;
+
     protected virtual void Awake() {
         gameObject.layer = LayerMask.NameToLayer("Skill");
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Skill"), LayerMask.NameToLayer("Loot"));
@@ -21,6 +23,7 @@ public abstract class Skill : MonoBehaviour {
 
     public virtual void InitSkill(int lvl) {
         SD.lvl = lvl;
+        OC = transform.parent.parent.GetComponent<ObjectController>();
     }
 
     // Use this for initialization
@@ -32,4 +35,12 @@ public abstract class Skill : MonoBehaviour {
     protected virtual void Update () {
 	
 	}
+
+    public Sprite GetSkillIcon() {
+        return GetComponent<Image>().sprite;
+    }
+
+    public ObjectController GetOC() {
+        return OC;
+    }
 }

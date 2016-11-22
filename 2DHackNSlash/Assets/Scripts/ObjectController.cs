@@ -3,8 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public abstract class ObjectController : MonoBehaviour {
-    [HideInInspector]
-    public Rigidbody2D rb;
+    protected Rigidbody2D rb;
     [HideInInspector]
     public Collider2D collider;
 
@@ -31,9 +30,9 @@ public abstract class ObjectController : MonoBehaviour {
     [HideInInspector]
     public Transform Debuffs;
 
-    public delegate void on_dmg_deal(ObjectController target);
-    public delegate void on_health_update(Value health_change = null);
-    public delegate void on_mana_update(Value mana_change = null);
+    public delegate void on_dmg_deal(ObjectController target = null);
+    public delegate void on_health_update(Value health_change);
+    public delegate void on_mana_update(Value mana_change);
 
     public on_dmg_deal ON_DMG_DEAL;
     public on_health_update ON_HEALTH_UPDATE;
@@ -62,32 +61,79 @@ public abstract class ObjectController : MonoBehaviour {
     virtual protected void Start() {
     }
 
-    public void ActiveVFXWithStayTime(string VFX, float StayTime) {
+    //Physics
+    public bool HasForce() {
+        return rb.velocity != Vector2.zero;
+    }
+
+    public void MountainlizeMass() {
+        rb.mass = 1000;
+    }
+
+    public void NormalizeMass() {
+        rb.mass = 1;
+    }
+
+    public void ZerolizeForce() {
+        rb.velocity = Vector2.zero;
+    }
+
+    public void ZerolizeDrag() {
+        rb.drag = 0;
+    }
+
+    public void NormalizeDrag() {
+        rb.drag = 10;
+    }
+
+    public void AddForce(Vector2 Direction, float Magnitude, ForceMode2D ForceMode) {
+        rb.AddForce(Direction * Magnitude, ForceMode);
+    }
+    
+    public float GetVFXScale() {
+        return VFX_Transform.GetComponent<VFXScaler>().scale;
+    }
+
+    //Particle VFX
+    public void ActiveVFXParticalWithStayTime(string VFX, float StayTime) {
+        float scale = VFX_Transform.GetComponent<VFXScaler>().scale;
         GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;
-        VFX_OJ.transform.position = VFX_Transform.position;
-        VFX_OJ.transform.localScale = VFX_Transform.localScale;
+        VFX_OJ.transform.position = VFX_Transform.position + VFX_OJ.transform.position * scale;
+        VFX_OJ.transform.GetComponent<ParticleSystem>().startSize *= scale;
         VFX_OJ.name = VFX;
         Destroy(VFX_OJ, StayTime);
     }
-
-    public void ActiveOneTimeVFX(string VFX) {
+    public void ActiveVFXParticle(string VFX) {
+        float scale = VFX_Transform.GetComponent<VFXScaler>().scale;
         GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;
-        VFX_OJ.transform.position = VFX_Transform.position;
-        VFX_OJ.transform.localScale = VFX_Transform.localScale;
+        VFX_OJ.transform.position = VFX_Transform.position + VFX_OJ.transform.position*scale;
+        VFX_OJ.transform.GetComponent<ParticleSystem>().startSize *= scale;
+        VFX_OJ.name = VFX;
+    }
+
+    public void DeactiveVFXParticle(string VFX) {
+        Destroy(VFX_Transform.Find(VFX).gameObject);
+    }
+
+    public void ActiveOneShotVFXParticle(string VFX) {
+        float scale = VFX_Transform.GetComponent<VFXScaler>().scale;
+        GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;
+        VFX_OJ.transform.position = VFX_Transform.position + VFX_OJ.transform.position * scale;
+        VFX_OJ.transform.GetComponent<ParticleSystem>().startSize *= scale;
+        VFX_OJ.name = VFX;
+        float length = VFX_OJ.transform.GetComponent<ParticleSystem>().duration;
+        Destroy(VFX_OJ,length);
+    }
+
+    //Anim VFX
+    public void ActiveOneShotVFXAnim(string VFX) {
+        float scale = VFX_Transform.GetComponent<VFXScaler>().scale;
+        GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;
+        VFX_OJ.transform.position += VFX_Transform.position;
+        VFX_OJ.transform.localScale *= scale;
         VFX_OJ.name = VFX;
         float length = VFX_OJ.transform.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
         Destroy(VFX_OJ, length);
-    }
-
-    public void ActiveVFX(string VFX) {
-        GameObject VFX_OJ = Instantiate(Resources.Load("VFXPrefabs/" + VFX), VFX_Transform) as GameObject;
-        VFX_OJ.transform.position = VFX_Transform.position;
-        VFX_OJ.transform.localScale = VFX_Transform.localScale;
-        VFX_OJ.name = VFX;
-    }
-
-    public void DeactiveVFX(string VFX) {
-        Destroy(VFX_Transform.Find(VFX).gameObject);
     }
 
     abstract public string GetName();
@@ -103,15 +149,64 @@ public abstract class ObjectController : MonoBehaviour {
 
     abstract public void DeductMana(Value mana_cost);
 
-    abstract public bool HasBuff(System.Type buff);
-    abstract public bool HasDebuff(System.Type debuff);
-    //Combat
+    public bool HasBuff(System.Type buff) {
+        Buff[] buffs = Buffs.GetComponentsInChildren<Buff>();
+        if (buffs.Length == 0)
+            return false;
+        foreach (Buff _buff in buffs)
+            if (_buff.GetType() == buff)
+                return true;
+        return false;
+    }
 
+    public Buff GetBuff(System.Type buff) {
+        Buff[] buffs = Buffs.GetComponentsInChildren<Buff>();
+        foreach (Buff _buff in buffs)
+            if (_buff.GetType() == buff)
+                return _buff;
+        return null;
+    }
+
+    public Debuff GetDebuff(System.Type debuff) {
+        Debuff[] debuffs = Debuffs.GetComponentsInChildren<Debuff>();
+        foreach (Debuff _debuff in debuffs)
+            if (_debuff.GetType() == debuff)
+                return _debuff;
+        return null;
+    }
+
+    public bool HasDebuff(System.Type debuff) {
+        Debuff[] debuffs = Debuffs.GetComponentsInChildren<Debuff>();
+        if (debuffs.Length == 0)
+            return false;
+        foreach (Debuff _debuff in debuffs)
+            if (_debuff.GetType() == debuff)
+                return true;
+        return false;
+    }
+
+    public int DebuffStack(System.Type debuff) {
+        Debuff[] debuffs = Debuffs.GetComponentsInChildren<Debuff>();
+        if (debuffs.Length == 0)
+            return 0;
+        int stack = 0;
+        foreach (Debuff _debuff in debuffs)
+            if (_debuff.GetType() == debuff)
+                stack++;
+        return stack;
+    }
+
+    //Animation
+    abstract public float GetMovementAnimSpeed();
+    abstract public float GetAttackAnimSpeed();
+    abstract public float GetPhysicsSpeedFactor();
+
+    //Stats
     abstract public float GetMaxHealth();
     abstract public float GetMaxMana();
     abstract public float GetMaxAD();
     abstract public float GetMaxMD();
-    abstract public float GetMaxAttSpd();
+    abstract public float GetMaxAttkSpd();
     abstract public float GetMaxMoveSpd();
     abstract public float GetMaxCritChance();
     abstract public float GetMaxCritDmgBounus();
@@ -123,7 +218,7 @@ public abstract class ObjectController : MonoBehaviour {
     abstract public float GetCurrMana();
     abstract public float GetCurrAD();
     abstract public float GetCurrMD();
-    abstract public float GetCurrAttSpd();
+    abstract public float GetCurrAttkSpd();
     abstract public float GetCurrMoveSpd();
     abstract public float GetCurrCritChance();
     abstract public float GetCurrCritDmgBounus();
@@ -155,4 +250,9 @@ public abstract class ObjectController : MonoBehaviour {
     abstract public void SetCurrMPH(float mph);
     abstract public void SetCurrDefense(float defense);
 
+
+    //public virtual WeaponController GetEquippedWeaponController() {
+    //    Debug.Log("Junk Version");
+    //    return null;
+    //}
 }
