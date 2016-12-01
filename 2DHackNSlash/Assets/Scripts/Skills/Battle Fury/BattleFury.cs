@@ -15,15 +15,19 @@ public class BattleFury : PassiveSkill {
     public int MaxStack = 3;
     public float BleedDuration = 10;
 
+    [HideInInspector]
+    public bool Spining = false;
+
 
     public Stack<Collider2D> HittedStack = new Stack<Collider2D>();
 
     protected override void Awake() {
         base.Awake();
+        GetComponent<SpriteRenderer>().sortingOrder = Layer.Skill;
     }
 
-    public override void InitSkill(int lvl) {
-        base.InitSkill(lvl);
+    public override void InitSkill(ObjectController OC, int lvl) {
+        base.InitSkill(OC, lvl);
         BattleFurylvl BFL = null;
         switch (this.SD.lvl) {
             case 0:
@@ -47,8 +51,9 @@ public class BattleFury : PassiveSkill {
         TriggerChance = BFL.TriggerChance;
         Sping_ADScale = BFL.Sping_ADScale;
         Dot_ADSCale_Percentage = BFL.Dot_ADScale_Percentage;
-        
-        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), OC.transform.GetComponent<Collider2D>());//Ignore self here
+        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), OC.GetRootCollider());//Ignore self here
+
+        Description = "Upon dealing damage, you have "+ TriggerChance+"% chance to summon a weapon dealing "+ Sping_ADScale+"% AD dmg to enemies around you and apply bleeding on them for "+BleedDuration+" secs to bleed "+Dot_ADSCale_Percentage+"% AD dmg per sec with max stack of "+MaxStack+".";
     }
 
     protected override void Start() {
@@ -67,13 +72,13 @@ public class BattleFury : PassiveSkill {
         if (collider.gameObject.layer != LayerMask.NameToLayer("KillingGround"))
             return;
 
-        else if (OC.GetType() == typeof(PlayerController)) {
+        if (OC.GetType().IsSubclassOf(typeof(PlayerController))) {//Player Attack
             if (collider.tag == "Player") {
-                if (collider.transform.parent.name == "FriendlyPlayer")
+                if (collider.transform.parent.GetComponent<ObjectController>().GetType() == typeof(FriendlyPlayer))
                     return;
             } else if (HittedStack.Count != 0 && HittedStack.Contains(collider))//Prevent duplicated attacks
                 return;
-            ObjectController target = collider.GetComponent<ObjectController>();
+            ObjectController target = collider.transform.parent.GetComponent<ObjectController>();;
             OC.ON_DMG_DEAL += DealBFSpingDMG;
             OC.ON_DMG_DEAL(target);
             OC.ON_DMG_DEAL -= DealBFSpingDMG;
@@ -84,7 +89,7 @@ public class BattleFury : PassiveSkill {
             } else if (HittedStack.Count != 0 && HittedStack.Contains(collider)) {//Prevent duplicated attacks
                 return;
             }
-            ObjectController target = collider.GetComponent<ObjectController>();
+            ObjectController target = collider.transform.parent.GetComponent<ObjectController>();;
             OC.ON_DMG_DEAL += DealBFSpingDMG;
             OC.ON_DMG_DEAL(target);
             OC.ON_DMG_DEAL -= DealBFSpingDMG;
@@ -93,7 +98,7 @@ public class BattleFury : PassiveSkill {
     }
 
     void DealBFSpingDMG(ObjectController target) {
-        Value dmg = Value.CreateValue(0, 0, false, OC);
+        Value dmg = Value.CreateValue(0, -1, false, OC);
         if (UnityEngine.Random.value < (OC.GetCurrCritChance() / 100)) {
             dmg.Amount += OC.GetCurrAD() * (Sping_ADScale / 100) * (OC.GetCurrCritDmgBounus() / 100);
             dmg.IsCrit = true;
@@ -108,12 +113,8 @@ public class BattleFury : PassiveSkill {
         OC.ON_HEALTH_UPDATE(Value.CreateValue(OC.GetCurrLPH(), 1));
         OC.ON_HEALTH_UPDATE -= OC.HealHP;
 
-        OC.ON_MANA_UPDATE += OC.HealMana;
-        OC.ON_MANA_UPDATE(Value.CreateValue(OC.GetCurrMPH(), 1));
-        OC.ON_MANA_UPDATE -= OC.HealMana;
-
         if (dmg.IsCrit) {
-            target.ActiveOneShotVFXParticle("WeaponCritSlashVFX");
+            target.ActiveOneShotVFXParticle("WeaponCritSlashVFX", Layer.Skill);
         }
 
         target.ON_HEALTH_UPDATE += target.DeductHealth;
@@ -137,7 +138,7 @@ public class BattleFury : PassiveSkill {
     }
 
     void ApplyBattlFuryPassive(ObjectController target) {
-        if (UnityEngine.Random.value < (TriggerChance / 100)) {
+        if (!Spining && UnityEngine.Random.value < (TriggerChance / 100)) {
             ActiveBattleFury();
         }
     }

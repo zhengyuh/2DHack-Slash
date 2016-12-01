@@ -8,7 +8,6 @@ public class Cleave : ActiveSkill {
     [HideInInspector]
     public float RangeScale;
 
-
     private Animator Anim;
 
     public AudioClip SFX;
@@ -18,6 +17,7 @@ public class Cleave : ActiveSkill {
     protected override void Awake() {
         base.Awake();
         Anim = GetComponent<Animator>();
+        GetComponent<SpriteRenderer>().sortingOrder = Layer.Skill;
     }
 
     protected override void Start() {
@@ -30,8 +30,8 @@ public class Cleave : ActiveSkill {
 
     }
 
-    public override void InitSkill(int lvl) {
-        base.InitSkill(lvl);
+    public override void InitSkill(ObjectController OC, int lvl) {
+        base.InitSkill(OC, lvl);
         Cleavelvl CL = null;
         switch (this.SD.lvl) {
             case 0:
@@ -57,7 +57,9 @@ public class Cleave : ActiveSkill {
         ADScale = CL.ADScale;
         RangeScale = CL.RangeScale;
         transform.localScale = new Vector2(RangeScale, RangeScale);
-        Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), OC.transform.GetComponent<Collider2D>());
+        Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), OC.GetRootCollider());
+
+        Description = "Summon a size "+RangeScale+" dark weapon to deal "+ ADScale+ "% AD damage to enemies infront of you and knock them off. \n\nCost: " + ManaCost + " Mana\nCD: "+CD+" secs\n";
     }
 
     public override void Active() {
@@ -72,14 +74,13 @@ public class Cleave : ActiveSkill {
     void OnTriggerEnter2D(Collider2D collider) {
         if (collider.gameObject.layer != LayerMask.NameToLayer("KillingGround"))
             return;
-        if (OC.GetType() == typeof(PlayerController)) {
-            if (collider.transform.tag == "Player") {
-                if (collider.transform.parent.name == "FriendlyPlayer")
+        if (OC.GetType().IsSubclassOf(typeof(PlayerController))) {//Player Attack
+            if (collider.tag == "Player") {
+                if (collider.transform.parent.GetComponent<ObjectController>().GetType() == typeof(FriendlyPlayer))
                     return;
-            } 
-            else if (HittedStack.Count != 0 && HittedStack.Contains(collider))//Prevent duplicated attacks
+            } else if (HittedStack.Count != 0 && HittedStack.Contains(collider))//Prevent duplicated attacks
                 return;
-            ObjectController target = collider.GetComponent<ObjectController>();
+            ObjectController target = collider.transform.parent.GetComponent<ObjectController>();;
             Push(target);
             OC.ON_DMG_DEAL += DealCleaveDmg;
             OC.ON_DMG_DEAL(target);
@@ -91,7 +92,7 @@ public class Cleave : ActiveSkill {
             } else if (HittedStack.Count != 0 && HittedStack.Contains(collider)) {//Prevent duplicated attacks
                 return;
             }
-            ObjectController target = collider.GetComponent<ObjectController>();
+            ObjectController target = collider.transform.parent.GetComponent<ObjectController>();;
             Push(target);
             OC.ON_DMG_DEAL += DealCleaveDmg;
             OC.ON_DMG_DEAL(target);
@@ -116,12 +117,8 @@ public class Cleave : ActiveSkill {
         OC.ON_HEALTH_UPDATE(Value.CreateValue(OC.GetCurrLPH(), 1));
         OC.ON_HEALTH_UPDATE -= OC.HealHP;
 
-        OC.ON_MANA_UPDATE += OC.HealMana;
-        OC.ON_MANA_UPDATE(Value.CreateValue(OC.GetCurrMPH(), 1));
-        OC.ON_MANA_UPDATE -= OC.HealMana;
-
         if (dmg.IsCrit) {
-            target.ActiveOneShotVFXParticle("WeaponCritSlashVFX");
+            target.ActiveOneShotVFXParticle("WeaponCritSlashVFX", Layer.Skill);
         }
 
         target.ON_HEALTH_UPDATE += target.DeductHealth;
@@ -131,7 +128,11 @@ public class Cleave : ActiveSkill {
 
     void Push(ObjectController target) {
         Vector2 BouceOffDirection = (Vector2)Vector3.Normalize(target.transform.position - OC.transform.position);
-        target.NormalizeMass();
+        target.NormalizeRigibody();
         target.AddForce(BouceOffDirection,SD.lvl * 2, ForceMode2D.Impulse);
+    }
+
+    void UpdateSkillInfo() {
+
     }
 }

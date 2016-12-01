@@ -3,11 +3,10 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
     public static float SFX_Volume = 1;
+    public static int Show_Names = 1;
 
     public static GameManager instance;
     public static GameManager Instance { get { return instance; } }
-
-    ControllerManager CM;
 
     void Awake() {
         if (instance != null && instance != this) {
@@ -16,18 +15,16 @@ public class GameManager : MonoBehaviour {
             instance = this;
             DontDestroyOnLoad(this);
         }
-        if (ControllerManager.Instance) {
-            CM = ControllerManager.Instance;
-        } else
-            CM = FindObjectOfType<ControllerManager>();
     }
 
-    void OnLevelWasLoaded() {
+    //void OnLevelWasLoaded() {
         
-    }
+    //}
 
     void Update() {
-
+        if (ControllerManager.AllowControlUpdate && (Input.GetKeyDown(ControllerManager.ToggleShow) || Input.GetKeyDown(ControllerManager.J_B))) {
+            Show_Names *= -1;
+        }
     }
 
     public void LoadSelectionScene() {
@@ -42,4 +39,16 @@ public class GameManager : MonoBehaviour {
         Application.LoadLevel("Menu");
     }
 
+    public static void LoadScene(string SceneName) {
+        Application.LoadLevel(SceneName);
+    }
+    
+    public static void LoadSceneWithWaitTime(string SceneName, float time) {
+        instance.StartCoroutine(LoadSceneAfter(SceneName,time));
+    }
+
+    static IEnumerator LoadSceneAfter(string SceneName, float time) {
+        yield return new WaitForSeconds(time);
+        LoadScene(SceneName);
+    }
 }

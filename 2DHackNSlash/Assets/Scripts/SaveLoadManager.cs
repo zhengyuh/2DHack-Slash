@@ -2,28 +2,28 @@
 using System.Collections;
 
 public class SaveLoadManager : MonoBehaviour {
-    public int SlotIndexToLoad;
+    public static int SlotIndexToLoad;
 
     public static SaveLoadManager instance;
     public static SaveLoadManager Instance { get { return instance; } }
 
     void Awake() {
+        DataManager.Load();
         if (instance == null) {
             DontDestroyOnLoad(this);
             instance = this;
         }else {
             Destroy(gameObject);
         }
-        DataManager.Load();
     }
 
-    public void SaveCurrentPlayerInfo() {
-        PlayerController PC = GameObject.Find("MainPlayer/PlayerController").GetComponent<PlayerController>();
+    public static void SaveCurrentPlayerInfo() {
+        PlayerController PC = GameObject.Find("MainPlayer").GetComponent<PlayerController>();
         DataManager.SaveCharacter(PC.GetPlayerData());
         DataManager.Save();
     }
 
-    public CharacterDataStruct LoadPlayerInfo(int SlotIndex) {
+    public static CharacterDataStruct LoadPlayerInfo(int SlotIndex) {
         return DataManager.LoadCharacter(SlotIndex);
     }
 }

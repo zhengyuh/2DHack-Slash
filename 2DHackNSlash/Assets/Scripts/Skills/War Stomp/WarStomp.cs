@@ -6,6 +6,9 @@ public class WarStomp : ActiveSkill {
     float ADScale;
     float StunDuration;
 
+    delegate void Del(ObjectController target);
+    Del DEL;
+
     public Stack<Collider2D> HittedStack = new Stack<Collider2D>();
 
     Collider2D StompCollider;
@@ -13,10 +16,22 @@ public class WarStomp : ActiveSkill {
     public AudioClip StompSFX;
     public float StompTime = 0.1f;
 
+    GameObject StompVFX;
+    float VFX_StayTime;
+
+    float DefaultColliderRadius = 0.4f;
+
     protected override void Awake() {
         base.Awake();
         StompCollider = GetComponent<Collider2D>();
-    }
+        StompVFX = transform.Find("War Stomp VFX").gameObject;
+        transform.Find("War Stomp VFX").GetComponent<ParticleSystem>().GetComponent<Renderer>().sortingOrder = Layer.Skill;
+        transform.Find("War Stomp VFX/pulse").GetComponent<ParticleSystem>().GetComponent<Renderer>().sortingOrder = Layer.Skill;
+        VFX_StayTime = transform.Find("War Stomp VFX").GetComponent<ParticleSystem>().duration;
+        float ScaleFactor = ((CircleCollider2D)StompCollider).radius / DefaultColliderRadius;
+        transform.Find("War Stomp VFX").GetComponent<ParticleSystem>().startSize *= ScaleFactor;
+        transform.Find("War Stomp VFX/pulse").GetComponent<ParticleSystem>().startSize *= ScaleFactor;
+        }
 
     protected override void Start() {
         base.Start();
@@ -28,8 +43,8 @@ public class WarStomp : ActiveSkill {
 
     }
 
-    public override void InitSkill(int lvl) {
-        base.InitSkill(lvl);
+    public override void InitSkill(ObjectController OC, int lvl) {
+        base.InitSkill(OC, lvl);
         WarStomplvl WSL = null;
         switch (this.SD.lvl) {
             case 0:
@@ -55,7 +70,9 @@ public class WarStomp : ActiveSkill {
         ManaCost = WSL.ManaCost;
         ADScale = WSL.ADScale;
         StunDuration = WSL.StunDuration;
-        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), OC.transform.GetComponent<Collider2D>());//Ignore self here
+        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), OC.GetRootCollider());//Ignore self here
+
+        Description = "Heavily stomp the ground, dealing "+ADScale+"% AD dmg to nearby foes and stun them for "+StunDuration+" secs.\n\nCost: "+ManaCost+" Mana\nCD: "+CD+" secs";
     }
 
     public override void Active() {
@@ -64,19 +81,20 @@ public class WarStomp : ActiveSkill {
         OC.ON_MANA_UPDATE -= OC.DeductMana;
         StartCoroutine(ActiveStompCollider(StompTime));
         RealTime_CD = CD;
+        StartCoroutine(RunStompVFX(VFX_StayTime));
         AudioSource.PlayClipAtPoint(StompSFX, transform.position, GameManager.SFX_Volume);
     }
 
     void OnTriggerEnter2D(Collider2D collider) {
         if (collider.gameObject.layer != LayerMask.NameToLayer("KillingGround"))
             return;
-        if (OC.GetType() == typeof(PlayerController)) {
-            if (collider.transform.tag == "Player") {
-                if (collider.transform.parent.name == "FriendlyPlayer")
+        if (OC.GetType().IsSubclassOf(typeof(PlayerController))) {//Player Attack
+            if (collider.tag == "Player") {
+                if (collider.transform.parent.GetComponent<ObjectController>().GetType() == typeof(FriendlyPlayer))
                     return;
             } else if (HittedStack.Count != 0 && HittedStack.Contains(collider))
                 return;
-            ObjectController target = collider.GetComponent<ObjectController>();
+            ObjectController target = collider.transform.parent.GetComponent<ObjectController>();;
             OC.ON_DMG_DEAL += StunAndDealStompDmg;
             OC.ON_DMG_DEAL(target);
             OC.ON_DMG_DEAL -= StunAndDealStompDmg;
@@ -88,7 +106,7 @@ public class WarStomp : ActiveSkill {
             else if (HittedStack.Count != 0 && HittedStack.Contains(collider)) {
                 return;
             }
-            ObjectController target = collider.GetComponent<ObjectController>();
+            ObjectController target = collider.transform.parent.GetComponent<ObjectController>();
             OC.ON_DMG_DEAL += StunAndDealStompDmg;
             OC.ON_DMG_DEAL(target);
             OC.ON_DMG_DEAL -= StunAndDealStompDmg;
@@ -130,10 +148,6 @@ public class WarStomp : ActiveSkill {
         OC.ON_HEALTH_UPDATE(Value.CreateValue(OC.GetCurrLPH(),1));
         OC.ON_HEALTH_UPDATE -= OC.HealHP;
 
-        OC.ON_MANA_UPDATE += OC.HealMana;
-        OC.ON_MANA_UPDATE(Value.CreateValue(OC.GetCurrMPH(), 1));
-        OC.ON_MANA_UPDATE -= OC.HealMana;
-
         target.ON_HEALTH_UPDATE += target.DeductHealth;
         target.ON_HEALTH_UPDATE(dmg);
         target.ON_HEALTH_UPDATE -= target.DeductHealth;
@@ -144,6 +158,12 @@ public class WarStomp : ActiveSkill {
         yield return new WaitForSeconds(time);
         StompCollider.enabled = false;
         HittedStack.Clear();
+    }
+
+    IEnumerator RunStompVFX(float time) {
+        StompVFX.SetActive(true);
+        yield return new WaitForSeconds(time);
+        StompVFX.SetActive(false);
     }
 
 }
